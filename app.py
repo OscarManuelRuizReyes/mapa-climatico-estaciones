@@ -192,6 +192,63 @@ def build_annual_summary(station_df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def build_rainfall_comparison_chart(annual_df: pd.DataFrame) -> go.Figure:
+    comparison = annual_df.copy()
+    average_rainfall = comparison["precipitation_total_mm"].mean()
+    comparison["difference_from_average"] = comparison["precipitation_total_mm"] - average_rainfall
+    comparison["classification"] = comparison["precipitation_total_mm"].apply(
+        lambda value: "Más lluvia que el promedio" if value >= average_rainfall else "Menos lluvia que el promedio"
+    )
+    comparison["bar_color"] = comparison["classification"].map(
+        {
+            "Más lluvia que el promedio": COLORS["blue"],
+            "Menos lluvia que el promedio": COLORS["ocher"],
+        }
+    )
+    comparison["signal_text"] = comparison["classification"].map(
+        {
+            "Más lluvia que el promedio": "Posible año muy lluvioso",
+            "Menos lluvia que el promedio": "Posible año seco",
+        }
+    )
+
+    fig = go.Figure(
+        [
+            go.Bar(
+                x=comparison["year"],
+                y=comparison["precipitation_total_mm"],
+                marker={"color": comparison["bar_color"], "line": {"color": "#ffffff", "width": 1}},
+                customdata=comparison[
+                    ["difference_from_average", "classification", "signal_text", "precipitation_total_mm"]
+                ].to_numpy(),
+                hovertemplate=(
+                    "<b>Año %{x}</b><br>"
+                    "Precipitación anual: %{customdata[3]:.1f} mm<br>"
+                    "Diferencia contra el promedio: %{customdata[0]:+.1f} mm<br>"
+                    "Clasificación: %{customdata[1]}<br>"
+                    "Señal visual: %{customdata[2]}<extra></extra>"
+                ),
+                name="Lluvia anual",
+            )
+        ]
+    )
+    fig.add_hline(
+        y=average_rainfall,
+        line_color=COLORS["orange"],
+        line_width=3,
+        line_dash="dash",
+        annotation_text="Promedio anual",
+        annotation_position="top left",
+        annotation_font_color=COLORS["orange"],
+    )
+    fig.update_layout(
+        title="¿Qué años llovió más o menos de lo normal?",
+        xaxis_title="Año",
+        yaxis_title="Precipitación anual total (mm)",
+    )
+    return style_chart(fig)
+
+
 def build_detailed_table(station_df: pd.DataFrame, selected_year: int, scope: str) -> pd.DataFrame:
     filtered = station_df.copy()
     if scope == "Mostrar solo año seleccionado":
@@ -237,6 +294,7 @@ def build_detailed_table(station_df: pd.DataFrame, selected_year: int, scope: st
 
 def style_chart(fig: go.Figure) -> go.Figure:
     fig.update_layout(
+        template="plotly_white",
         paper_bgcolor=COLORS["card"],
         plot_bgcolor=COLORS["card"],
         font={"family": "Trebuchet MS, Gill Sans, sans-serif", "color": COLORS["text"]},
@@ -635,6 +693,19 @@ with chart_col_4:
         use_container_width=True,
         config={"displayModeBar": False, "responsive": True},
     )
+
+st.markdown("## ¿Qué años llovió más o menos de lo normal?")
+st.caption(
+    "Comparamos la lluvia de cada año con el promedio de la estación. Las barras azules muestran años más lluviosos y las barras naranja muestran años con menos lluvia."
+)
+st.plotly_chart(
+    build_rainfall_comparison_chart(annual_df),
+    use_container_width=True,
+    config={"displayModeBar": False, "responsive": True},
+)
+st.caption(
+    "Esta gráfica es una comparación visual inicial. Los años por encima del promedio pueden indicar años más lluviosos, y los años por debajo pueden indicar años más secos."
+)
 
 st.markdown("## Tabla detallada de datos mensuales")
 table_scope = st.radio(
