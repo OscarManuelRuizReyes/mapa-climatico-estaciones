@@ -192,6 +192,49 @@ def build_annual_summary(station_df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def build_detailed_table(station_df: pd.DataFrame, selected_year: int, scope: str) -> pd.DataFrame:
+    filtered = station_df.copy()
+    if scope == "Mostrar solo año seleccionado":
+        filtered = filtered[filtered["year"] == selected_year]
+
+    filtered = filtered.sort_values(["year", "month"]).copy()
+    filtered["precipitation_mm"] = filtered["precipitation_mm"].round(1)
+    filtered["tmax_c"] = filtered["tmax_c"].round(1)
+    filtered["tmin_c"] = filtered["tmin_c"].round(1)
+    filtered["demo_generated"] = filtered["demo_generated"].map(
+        lambda value: "Sí" if str(value).lower() == "true" else "No"
+    )
+
+    table = filtered[
+        [
+            "year",
+            "month_name",
+            "precipitation_mm",
+            "tmax_c",
+            "tmin_c",
+            "data_status",
+            "precip_source",
+            "tmax_source",
+            "tmin_source",
+            "demo_generated",
+        ]
+    ].rename(
+        columns={
+            "year": "Año",
+            "month_name": "Mes",
+            "precipitation_mm": "Precipitación mensual (mm)",
+            "tmax_c": "Temperatura máxima promedio (°C)",
+            "tmin_c": "Temperatura mínima promedio (°C)",
+            "data_status": "Estado del dato",
+            "precip_source": "Fuente precipitación",
+            "tmax_source": "Fuente Tmax",
+            "tmin_source": "Fuente Tmin",
+            "demo_generated": "Dato generado demo",
+        }
+    )
+    return table
+
+
 def style_chart(fig: go.Figure) -> go.Figure:
     fig.update_layout(
         paper_bgcolor=COLORS["card"],
@@ -592,3 +635,21 @@ with chart_col_4:
         use_container_width=True,
         config={"displayModeBar": False, "responsive": True},
     )
+
+st.markdown("## Tabla detallada de datos mensuales")
+table_scope = st.radio(
+    "Alcance de la tabla",
+    ["Mostrar solo año seleccionado", "Mostrar todos los años de la estación"],
+    horizontal=True,
+)
+detailed_table = build_detailed_table(station_df, st.session_state["selected_year"], table_scope)
+st.dataframe(detailed_table, use_container_width=True, hide_index=True)
+st.download_button(
+    "Descargar tabla de la estación seleccionada",
+    data=detailed_table.to_csv(index=False).encode("utf-8-sig"),
+    file_name="datos_detallados_estacion_seleccionada.csv",
+    mime="text/csv",
+)
+st.caption(
+    "Los datos marcados como estimados o generados corresponden a valores completados con fines demostrativos."
+)
