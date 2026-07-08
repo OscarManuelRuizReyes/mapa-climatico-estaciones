@@ -242,9 +242,10 @@ def build_rainfall_comparison_chart(annual_df: pd.DataFrame) -> go.Figure:
         annotation_font_color=COLORS["orange"],
     )
     fig.update_layout(
-        title="¿Qué años llovió más o menos de lo normal?",
+        title="",
         xaxis_title="Año",
         yaxis_title="Precipitación anual total (mm)",
+        margin={"t": 20, "l": 40, "r": 30, "b": 40},
     )
     return style_chart(fig)
 
