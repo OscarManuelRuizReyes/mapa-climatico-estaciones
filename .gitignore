@@ -1,0 +1,10 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.streamlit/secrets.toml
+/.climate_overlay_crop.png
+/image.jpeg
+/Fuentes/dataset_mapa_clima_demo_2015_2024.xlsx
