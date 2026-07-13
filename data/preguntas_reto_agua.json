@@ -1,0 +1,125 @@
+{
+  "final_summary": [
+    "El Sol impulsa la evaporación.",
+    "El vapor se condensa y forma gotas.",
+    "El agua regresa como precipitación.",
+    "La infiltración ayuda a recargar los acuíferos.",
+    "Muy poca lluvia puede producir sequías.",
+    "Mucha lluvia en poco tiempo puede provocar inundaciones."
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "iconos": "☀️ 💧",
+      "pregunta": "¿Por qué el Sol ayuda al ciclo del agua?",
+      "opciones": {
+        "A": "Porque hace que el agua desaparezca para siempre.",
+        "B": "Porque calienta el agua y favorece la evaporación.",
+        "C": "Porque detiene la lluvia.",
+        "D": "Porque enfría las nubes."
+      },
+      "respuestas_correctas": [
+        "B"
+      ],
+      "explicacion": "El calor del Sol transforma parte del agua líquida en vapor. Ese proceso se llama evaporación.",
+      "permite_multiple": false
+    },
+    {
+      "id": 2,
+      "iconos": "☁️ ❄️",
+      "pregunta": "¿Qué ocurre cuando el vapor de agua toca una superficie más fría?",
+      "opciones": {
+        "A": "Se convierte en gotas pequeñas.",
+        "B": "Se vuelve arena.",
+        "C": "Desaparece.",
+        "D": "Se convierte en fuego."
+      },
+      "respuestas_correctas": [
+        "A"
+      ],
+      "explicacion": "Cuando el vapor se enfría, se condensa y forma pequeñas gotas de agua.",
+      "permite_multiple": false
+    },
+    {
+      "id": 3,
+      "iconos": "🌧️ ☁️",
+      "pregunta": "¿Qué pasa cuando las gotas en las nubes se hacen grandes y pesadas?",
+      "opciones": {
+        "A": "Suben más al cielo.",
+        "B": "Se quedan quietas para siempre.",
+        "C": "Caen como precipitación.",
+        "D": "Se convierten en piedras."
+      },
+      "respuestas_correctas": [
+        "C"
+      ],
+      "explicacion": "Cuando las gotas crecen demasiado, caen como lluvia u otra forma de precipitación.",
+      "permite_multiple": false
+    },
+    {
+      "id": 4,
+      "iconos": "🌱 💧",
+      "pregunta": "¿Qué ocurre cuando parte del agua de lluvia entra al suelo?",
+      "opciones": {
+        "A": "Se llama infiltración.",
+        "B": "Se convierte en humo.",
+        "C": "Sale volando.",
+        "D": "Hace que el Sol se apague."
+      },
+      "respuestas_correctas": [
+        "A"
+      ],
+      "explicacion": "La infiltración ocurre cuando el agua entra al suelo y ayuda a recargar el agua subterránea.",
+      "permite_multiple": false
+    },
+    {
+      "id": 5,
+      "iconos": "☀️ 🌵",
+      "pregunta": "¿Qué puede ocurrir si durante muchos meses llueve mucho menos de lo normal?",
+      "opciones": {
+        "A": "Una sequía.",
+        "B": "Un arcoíris permanente.",
+        "C": "Más nieve en la playa.",
+        "D": "Que el mar desaparezca en un día."
+      },
+      "respuestas_correctas": [
+        "A"
+      ],
+      "explicacion": "Cuando pasa mucho tiempo con poca lluvia, puede aparecer una sequía.",
+      "permite_multiple": false
+    },
+    {
+      "id": 6,
+      "iconos": "🌧️ 🌊",
+      "pregunta": "¿Qué puede ocurrir si llueve demasiado en poco tiempo?",
+      "opciones": {
+        "A": "Una inundación.",
+        "B": "Que todas las plantas se congelen.",
+        "C": "Que desaparezcan las nubes.",
+        "D": "Que el agua deje de moverse."
+      },
+      "respuestas_correctas": [
+        "A"
+      ],
+      "explicacion": "La lluvia intensa en poco tiempo puede hacer que el agua se acumule y provoque inundaciones.",
+      "permite_multiple": false
+    },
+    {
+      "id": 7,
+      "iconos": "⚠️ 💧",
+      "pregunta": "¿Cuáles eventos están relacionados con cambios extremos en el ciclo del agua?",
+      "opciones": {
+        "A": "Sequías.",
+        "B": "Inundaciones.",
+        "C": "Sombras de los árboles.",
+        "D": "Piedras redondas."
+      },
+      "respuestas_correctas": [
+        "A",
+        "B"
+      ],
+      "explicacion": "Las sequías y las inundaciones pueden aparecer cuando cambia mucho la cantidad de lluvia en una región.",
+      "permite_multiple": true
+    }
+  ]
+}
