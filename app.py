@@ -10,7 +10,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from PIL import Image, ImageOps
-from streamlit.errors import StreamlitSecretNotFoundError
 from streamlit_folium import st_folium
 
 
@@ -803,144 +802,10 @@ def ensure_quiz_state() -> None:
         "quiz_current_index": 0,
         "quiz_checked": False,
         "quiz_results": {},
-        "quiz_admin_open": False,
-        "quiz_admin_authenticated": False,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
-
-
-def get_quiz_admin_credentials() -> tuple[Optional[str], Optional[str]]:
-    try:
-        admin_user = st.secrets.get("QUIZ_ADMIN_USER")
-        admin_password = st.secrets.get("QUIZ_ADMIN_PASSWORD")
-    except StreamlitSecretNotFoundError:
-        admin_user = None
-        admin_password = None
-    return admin_user, admin_password
-
-
-def render_quiz_admin(payload: dict) -> None:
-    st.markdown('<div class="quiz-admin-toggle-wrap">', unsafe_allow_html=True)
-    if st.button("⚙️", key="quiz_admin_toggle", help="Acceso administrador"):
-        st.session_state["quiz_admin_open"] = not st.session_state.get("quiz_admin_open", False)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    if not st.session_state.get("quiz_admin_open", False):
-        return
-
-    st.markdown('<div class="quiz-admin-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-label">Modo administrador</div>', unsafe_allow_html=True)
-    st.info("Para editar permanentemente, modifica el Google Sheet.")
-
-    admin_user, admin_password = get_quiz_admin_credentials()
-
-    if not st.session_state.get("quiz_admin_authenticated", False):
-        auth_col_1, auth_col_2, auth_col_3 = st.columns([1, 1, 0.45], gap="small")
-        username = auth_col_1.text_input(
-            "Usuario",
-            key="quiz_admin_user_input",
-            placeholder="usuario",
-            label_visibility="collapsed",
-        )
-        password = auth_col_2.text_input(
-            "Contraseña",
-            key="quiz_admin_password_input",
-            type="password",
-            placeholder="contraseña",
-            label_visibility="collapsed",
-        )
-        access_clicked = auth_col_3.button("Entrar", key="quiz_admin_login_button")
-
-        if access_clicked:
-            if not admin_user or not admin_password:
-                st.warning("Configura `QUIZ_ADMIN_USER` y `QUIZ_ADMIN_PASSWORD` en `.streamlit/secrets.toml` o en los secretos de Streamlit Cloud.")
-            elif username == admin_user and password == admin_password:
-                st.session_state["quiz_admin_authenticated"] = True
-                st.success("Modo administrador activado.")
-                st.rerun()
-            else:
-                st.error("Credenciales incorrectas.")
-        st.markdown("</div>", unsafe_allow_html=True)
-        return
-
-    st.success("Modo administrador activo.")
-    summary_text = st.text_area(
-        "Resumen final",
-        value="\n".join(payload["final_summary"]),
-        height=150,
-        key="quiz_summary_text",
-        help="Escribe una idea por línea para el bloque final.",
-    )
-    if st.button("Guardar bloque final", key="quiz_save_summary"):
-        st.warning("Para editar permanentemente, modifica el Google Sheet.")
-
-    st.markdown("### Preguntas")
-    question_labels = [f"{question['id']}. {question['pregunta']}" for question in payload["questions"]]
-    selected_label = st.selectbox(
-        "Selecciona una pregunta",
-        question_labels,
-        key="quiz_admin_selected_question",
-    )
-    selected_index = question_labels.index(selected_label)
-    question = payload["questions"][selected_index]
-
-    iconos = st.text_input("Íconos", value=question["iconos"], key=f"edit_iconos_{question['id']}")
-    pregunta = st.text_area("Pregunta", value=question["pregunta"], key=f"edit_pregunta_{question['id']}", height=90)
-    permite_multiple = st.checkbox(
-        "Permitir varias respuestas",
-        value=question["permite_multiple"],
-        key=f"edit_multiple_{question['id']}",
-    )
-
-    edited_options = {}
-    for letter in sorted(question["opciones"].keys()):
-        edited_options[letter] = st.text_input(
-            f"Opción {letter}",
-            value=question["opciones"][letter],
-            key=f"edit_option_{question['id']}_{letter}",
-        )
-
-    correct_answers = st.multiselect(
-        "Respuestas correctas",
-        sorted(edited_options.keys()),
-        default=question["respuestas_correctas"],
-        key=f"edit_correct_{question['id']}",
-    )
-    explicacion = st.text_area(
-        "Explicación",
-        value=question["explicacion"],
-        key=f"edit_exp_{question['id']}",
-        height=100,
-    )
-
-    action_col_1, action_col_2, action_col_3, action_col_4 = st.columns(4)
-    if action_col_1.button("Guardar pregunta", key=f"save_question_{question['id']}"):
-        st.warning("Para editar permanentemente, modifica el Google Sheet.")
-
-    if action_col_2.button("Subir", key=f"move_up_{question['id']}", disabled=selected_index == 0):
-        st.warning("Para editar permanentemente, modifica el Google Sheet.")
-
-    if action_col_3.button(
-        "Bajar",
-        key=f"move_down_{question['id']}",
-        disabled=selected_index == len(payload["questions"]) - 1,
-    ):
-        st.warning("Para editar permanentemente, modifica el Google Sheet.")
-
-    if action_col_4.button("Eliminar", key=f"delete_question_{question['id']}"):
-        st.warning("Para editar permanentemente, modifica el Google Sheet.")
-
-    if st.button("Agregar pregunta nueva", key="quiz_add_question"):
-        st.warning("Para editar permanentemente, modifica el Google Sheet.")
-
-    if st.button("Cerrar modo administrador", key="quiz_admin_close"):
-        st.session_state["quiz_admin_authenticated"] = False
-        st.session_state["quiz_admin_open"] = False
-        st.rerun()
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_quiz_view() -> None:
@@ -988,7 +853,6 @@ def render_quiz_view() -> None:
             st.session_state["quiz_checked"] = False
             st.session_state["quiz_results"] = {}
             st.rerun()
-        render_quiz_admin(payload)
         return
 
     if st.session_state["quiz_finished"]:
@@ -1009,7 +873,6 @@ def render_quiz_view() -> None:
         if st.button("Jugar otra vez", key="quiz_restart_button", width="stretch"):
             reset_quiz_progress()
             st.rerun()
-        render_quiz_admin(payload)
         return
 
     current_index = st.session_state["quiz_current_index"]
@@ -1101,8 +964,6 @@ def render_quiz_view() -> None:
             else:
                 st.session_state["quiz_current_index"] = current_index + 1
             st.rerun()
-
-    render_quiz_admin(payload)
 
 
 def render_map_sidebar(stations: pd.DataFrame, options: list[str], years: list[int]) -> None:
@@ -1280,8 +1141,7 @@ st.markdown(
         .quiz-hero,
         .quiz-question-shell,
         .quiz-question-card,
-        .quiz-finish-card,
-        .quiz-admin-card {{
+        .quiz-finish-card {{
             background: rgba(255, 250, 240, 0.92);
             border: 1px solid rgba(155,106,47,0.10);
             border-radius: 1.2rem;
@@ -1304,8 +1164,7 @@ st.markdown(
         .quiz-hero,
         .quiz-question-shell,
         .quiz-question-card,
-        .quiz-finish-card,
-        .quiz-admin-card {{
+        .quiz-finish-card {{
             padding: 1.1rem 1.2rem;
         }}
         .info-card *,
@@ -1314,8 +1173,7 @@ st.markdown(
         .quiz-hero *,
         .quiz-question-shell *,
         .quiz-question-card *,
-        .quiz-finish-card *,
-        .quiz-admin-card * {{
+        .quiz-finish-card * {{
             overflow-wrap: anywhere;
             word-break: break-word;
         }}
@@ -1675,14 +1533,6 @@ st.markdown(
             margin-top: 0.5rem;
             padding-left: 1.2rem;
             line-height: 1.7;
-        }}
-        .quiz-admin-toggle-wrap {{
-            margin-top: 1.5rem;
-            display: flex;
-            justify-content: flex-end;
-        }}
-        .quiz-admin-card input {{
-            background: rgba(255,255,255,0.94);
         }}
         @media (max-width: 960px) {{
             .climate-metrics,
