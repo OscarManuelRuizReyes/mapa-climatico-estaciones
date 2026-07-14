@@ -81,6 +81,9 @@ STATION_PLACE_DESCRIPTIONS = {
     4024: "Esta estación representa un clima cálido húmedo. Es un lugar con temperaturas altas y mucha lluvia, por lo que suele haber ríos, humedad y vegetación abundante.",
     31097: "Esta estación representa un clima cálido subhúmedo. Hace calor durante gran parte del año, pero la lluvia se concentra más en ciertos meses, por eso hay temporada de lluvias y temporada más seca.",
 }
+DEFAULT_GOOGLE_SHEET_ID = "1MHYx1jypG_-rCEyFyvGIO5ZvqnUSGK2bAwgl50HbJ58"
+DEFAULT_GOOGLE_SHEET_PREGUNTAS_GID = "445447247"
+DEFAULT_GOOGLE_SHEET_APRENDIZAJES_GID = "56937761"
 DEFAULT_QUIZ_PAYLOAD = {
     "final_summary": [
         "El Sol impulsa la evaporación.",
@@ -313,7 +316,7 @@ def normalize_quiz_payload(payload: object) -> dict:
     return {"final_summary": [str(item) for item in final_summary], "questions": questions}
 
 
-def load_quiz_payload() -> dict:
+def load_quiz_payload_from_local() -> dict:
     if not QUIZ_DATA_PATH.exists():
         save_quiz_payload(DEFAULT_QUIZ_PAYLOAD)
     with QUIZ_DATA_PATH.open("r", encoding="utf-8") as file:
@@ -324,6 +327,92 @@ def save_quiz_payload(payload: dict) -> None:
     QUIZ_DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
     with QUIZ_DATA_PATH.open("w", encoding="utf-8") as file:
         json.dump(normalize_quiz_payload(payload), file, ensure_ascii=False, indent=2)
+
+
+def parse_truthy(value: object) -> bool:
+    return str(value).strip().lower() in {"true", "1", "si", "sí", "yes", "y"}
+
+
+def get_google_sheet_settings() -> tuple[str, str, str]:
+    try:
+        sheet_id = st.secrets.get("GOOGLE_SHEET_ID", DEFAULT_GOOGLE_SHEET_ID)
+        preguntas_gid = st.secrets.get("GOOGLE_SHEET_PREGUNTAS_GID", DEFAULT_GOOGLE_SHEET_PREGUNTAS_GID)
+        aprendizajes_gid = st.secrets.get("GOOGLE_SHEET_APRENDIZAJES_GID", DEFAULT_GOOGLE_SHEET_APRENDIZAJES_GID)
+    except StreamlitSecretNotFoundError:
+        sheet_id = DEFAULT_GOOGLE_SHEET_ID
+        preguntas_gid = DEFAULT_GOOGLE_SHEET_PREGUNTAS_GID
+        aprendizajes_gid = DEFAULT_GOOGLE_SHEET_APRENDIZAJES_GID
+    return str(sheet_id), str(preguntas_gid), str(aprendizajes_gid)
+
+
+def build_google_sheet_csv_url(sheet_id: str, gid: str) -> str:
+    return f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def load_quiz_payload_from_google_sheets(sheet_id: str, preguntas_gid: str, aprendizajes_gid: str) -> dict:
+    preguntas_df = pd.read_csv(build_google_sheet_csv_url(sheet_id, preguntas_gid))
+    aprendizajes_df = pd.read_csv(build_google_sheet_csv_url(sheet_id, aprendizajes_gid))
+
+    preguntas_df = preguntas_df[preguntas_df["activa"].map(parse_truthy)].copy()
+    preguntas_df["orden"] = pd.to_numeric(preguntas_df["orden"], errors="coerce")
+    preguntas_df["id"] = pd.to_numeric(preguntas_df["id"], errors="coerce")
+    preguntas_df = preguntas_df.sort_values(["orden", "id"], na_position="last")
+
+    questions = []
+    for fallback_index, row in enumerate(preguntas_df.to_dict(orient="records"), start=1):
+        options = {
+            "A": str(row.get("opcion_a", "")).strip(),
+            "B": str(row.get("opcion_b", "")).strip(),
+            "C": str(row.get("opcion_c", "")).strip(),
+            "D": str(row.get("opcion_d", "")).strip(),
+        }
+        options = {letter: text for letter, text in options.items() if text and text.lower() != "nan"}
+        raw_answers = str(row.get("respuestas_correctas", ""))
+        correct_answers = [
+            answer.strip().upper()
+            for answer in raw_answers.split(",")
+            if answer.strip()
+        ]
+
+        questions.append(
+            {
+                "id": int(row["id"]) if pd.notna(row.get("id")) else fallback_index,
+                "iconos": str(row.get("iconos", "💧")),
+                "pregunta": str(row.get("pregunta", "Pregunta sin texto")),
+                "opciones": options or {"A": "Opción A", "B": "Opción B"},
+                "respuestas_correctas": correct_answers,
+                "explicacion": str(row.get("explicacion", "")),
+                "permite_multiple": parse_truthy(row.get("permite_multiple", False)),
+            }
+        )
+
+    aprendizajes_df = aprendizajes_df[aprendizajes_df["activo"].map(parse_truthy)].copy()
+    aprendizajes_df["orden"] = pd.to_numeric(aprendizajes_df["orden"], errors="coerce")
+    aprendizajes_df = aprendizajes_df.sort_values("orden", na_position="last")
+    final_summary = []
+    for row in aprendizajes_df.to_dict(orient="records"):
+        icono = str(row.get("icono", "")).strip()
+        texto = str(row.get("texto", "")).strip()
+        if texto and texto.lower() != "nan":
+            final_summary.append(f"{icono} {texto}".strip())
+
+    return normalize_quiz_payload(
+        {
+            "final_summary": final_summary or DEFAULT_QUIZ_PAYLOAD["final_summary"],
+            "questions": questions or DEFAULT_QUIZ_PAYLOAD["questions"],
+        }
+    )
+
+
+def load_quiz_payload() -> tuple[dict, Optional[str]]:
+    sheet_id, preguntas_gid, aprendizajes_gid = get_google_sheet_settings()
+    try:
+        return load_quiz_payload_from_google_sheets(sheet_id, preguntas_gid, aprendizajes_gid), None
+    except Exception:
+        return load_quiz_payload_from_local(), (
+            "No se pudieron cargar las preguntas desde Google Sheets. Se usó la versión local."
+        )
 
 
 def station_options(dataset: pd.DataFrame) -> list[str]:
@@ -743,6 +832,7 @@ def render_quiz_admin(payload: dict) -> None:
 
     st.markdown('<div class="quiz-admin-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-label">Modo administrador</div>', unsafe_allow_html=True)
+    st.info("Para editar permanentemente, modifica el Google Sheet.")
 
     admin_user, admin_password = get_quiz_admin_credentials()
 
@@ -784,10 +874,7 @@ def render_quiz_admin(payload: dict) -> None:
         help="Escribe una idea por línea para el bloque final.",
     )
     if st.button("Guardar bloque final", key="quiz_save_summary"):
-        payload["final_summary"] = [line.strip() for line in summary_text.splitlines() if line.strip()]
-        save_quiz_payload(payload)
-        st.success("Bloque final actualizado.")
-        st.rerun()
+        st.warning("Para editar permanentemente, modifica el Google Sheet.")
 
     st.markdown("### Preguntas")
     question_labels = [f"{question['id']}. {question['pregunta']}" for question in payload["questions"]]
@@ -830,71 +917,23 @@ def render_quiz_admin(payload: dict) -> None:
 
     action_col_1, action_col_2, action_col_3, action_col_4 = st.columns(4)
     if action_col_1.button("Guardar pregunta", key=f"save_question_{question['id']}"):
-        payload["questions"][selected_index] = normalize_quiz_payload(
-            {
-                "final_summary": payload["final_summary"],
-                "questions": [
-                    {
-                        "id": question["id"],
-                        "iconos": iconos,
-                        "pregunta": pregunta,
-                        "opciones": edited_options,
-                        "respuestas_correctas": correct_answers or [sorted(edited_options.keys())[0]],
-                        "explicacion": explicacion,
-                        "permite_multiple": permite_multiple,
-                    }
-                ],
-            }
-        )["questions"][0]
-        save_quiz_payload(payload)
-        st.success("Pregunta guardada.")
-        st.rerun()
+        st.warning("Para editar permanentemente, modifica el Google Sheet.")
 
     if action_col_2.button("Subir", key=f"move_up_{question['id']}", disabled=selected_index == 0):
-        payload["questions"][selected_index - 1], payload["questions"][selected_index] = (
-            payload["questions"][selected_index],
-            payload["questions"][selected_index - 1],
-        )
-        save_quiz_payload(payload)
-        st.rerun()
+        st.warning("Para editar permanentemente, modifica el Google Sheet.")
 
     if action_col_3.button(
         "Bajar",
         key=f"move_down_{question['id']}",
         disabled=selected_index == len(payload["questions"]) - 1,
     ):
-        payload["questions"][selected_index + 1], payload["questions"][selected_index] = (
-            payload["questions"][selected_index],
-            payload["questions"][selected_index + 1],
-        )
-        save_quiz_payload(payload)
-        st.rerun()
+        st.warning("Para editar permanentemente, modifica el Google Sheet.")
 
     if action_col_4.button("Eliminar", key=f"delete_question_{question['id']}"):
-        if len(payload["questions"]) == 1:
-            st.error("Debe quedar al menos una pregunta.")
-        else:
-            payload["questions"].pop(selected_index)
-            save_quiz_payload(payload)
-            st.success("Pregunta eliminada.")
-            st.rerun()
+        st.warning("Para editar permanentemente, modifica el Google Sheet.")
 
     if st.button("Agregar pregunta nueva", key="quiz_add_question"):
-        next_id = max(question_item["id"] for question_item in payload["questions"]) + 1
-        payload["questions"].append(
-            {
-                "id": next_id,
-                "iconos": "💧",
-                "pregunta": "Nueva pregunta",
-                "opciones": {"A": "Opción A", "B": "Opción B", "C": "Opción C", "D": "Opción D"},
-                "respuestas_correctas": ["A"],
-                "explicacion": "Escribe aquí la explicación.",
-                "permite_multiple": False,
-            }
-        )
-        save_quiz_payload(payload)
-        st.success("Nueva pregunta agregada.")
-        st.rerun()
+        st.warning("Para editar permanentemente, modifica el Google Sheet.")
 
     if st.button("Cerrar modo administrador", key="quiz_admin_close"):
         st.session_state["quiz_admin_authenticated"] = False
@@ -906,7 +945,7 @@ def render_quiz_admin(payload: dict) -> None:
 
 def render_quiz_view() -> None:
     ensure_quiz_state()
-    payload = load_quiz_payload()
+    payload, loading_warning = load_quiz_payload()
     questions = payload["questions"]
     total_questions = len(questions)
 
@@ -914,6 +953,8 @@ def render_quiz_view() -> None:
     st.markdown(
         "Descubre cómo viaja el agua y qué ocurre cuando llueve demasiado o muy poco."
     )
+    if loading_warning:
+        st.caption(loading_warning)
 
     if not st.session_state["quiz_started"] and not st.session_state["quiz_finished"]:
         st.markdown(
