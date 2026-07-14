@@ -23,6 +23,8 @@ st.set_page_config(
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "Fuentes"
 QUIZ_DATA_PATH = BASE_DIR / "data" / "preguntas_reto_agua.json"
+CYCLE_WATER_DIR = BASE_DIR / "Fotos" / "ciclo_agua"
+WATER_JOURNEY_RESOURCES_DIR = BASE_DIR / "Fotos" / "ciclo_hidrologico_recursos"
 SOURCE_DIRS = [
     DATA_DIR,
     BASE_DIR / "assets",
@@ -207,6 +209,133 @@ DEFAULT_QUIZ_PAYLOAD = {
             "explicacion": "Las sequías y las inundaciones pueden aparecer cuando cambia mucho la cantidad de lluvia en una región.",
             "permite_multiple": True,
         },
+    ],
+}
+WATER_JOURNEY_STEPS = [
+    {
+        "id": 1,
+        "title": "El ciclo comienza",
+        "icon": "💧",
+        "image": "paso_01.png",
+        "text": "El agua está presente en ríos, lagos, mares, montañas, plantas y también debajo del suelo. En este viaje veremos cómo se mueve y vuelve a empezar.",
+        "chip_label": "Inicio",
+        "guide": "¡Estoy lista para comenzar mi viaje por la naturaleza!",
+        "question": "¿En qué lugares podemos encontrar agua?",
+        "options": ["En ríos, lagos y mares", "Solo en la Luna", "Solo en los juguetes"],
+        "answer": "En ríos, lagos y mares",
+    },
+    {
+        "id": 2,
+        "title": "Evaporación",
+        "icon": "☀️",
+        "image": "paso_02.png",
+        "text": "El Sol calienta el agua del mar, lagos y ríos. Una parte del agua sube al cielo como vapor. A esto se le llama evaporación.",
+        "chip_label": "Evaporación",
+        "guide": "¡El Sol me está ayudando a subir al cielo!",
+        "question": "¿Qué ayuda al agua a subir como vapor?",
+        "options": ["El Sol", "Las piedras", "Los peces"],
+        "answer": "El Sol",
+    },
+    {
+        "id": 3,
+        "title": "Formación de nubes",
+        "icon": "☁️",
+        "image": "paso_03.png",
+        "text": "El vapor sube y se enfría. Poco a poco se junta en gotitas muy pequeñas que ayudan a formar nubes.",
+        "chip_label": "Nubes",
+        "guide": "¡Me estoy juntando con otras gotitas para formar una nube!",
+        "question": "¿Qué se empieza a formar con muchas gotitas pequeñas?",
+        "options": ["Nubes", "Arena", "Montañas"],
+        "answer": "Nubes",
+    },
+    {
+        "id": 4,
+        "title": "Condensación",
+        "icon": "☁️",
+        "image": "paso_04.png",
+        "text": "Cuando muchas gotitas se juntan en el cielo, las nubes se hacen más grandes. Este proceso se llama condensación.",
+        "chip_label": "Condensación",
+        "guide": "¡Nos estamos juntando para hacer una nube más grande!",
+        "question": "¿Qué se forma cuando el vapor se enfría?",
+        "options": ["Nubes", "Arena", "Montañas"],
+        "answer": "Nubes",
+    },
+    {
+        "id": 5,
+        "title": "Movimiento de las nubes",
+        "icon": "☁️",
+        "image": "paso_05.png",
+        "text": "El viento puede mover las nubes de un lugar a otro. Así el agua puede viajar por el cielo antes de caer.",
+        "chip_label": "Viento",
+        "guide": "¡El viento me está llevando a conocer otro lugar del cielo!",
+        "question": "¿Qué puede mover las nubes de un lugar a otro?",
+        "options": ["El viento", "Las piedras", "Los árboles"],
+        "answer": "El viento",
+    },
+    {
+        "id": 6,
+        "title": "Precipitación",
+        "icon": "🌧️",
+        "image": "paso_06.png",
+        "text": "Cuando las nubes tienen muchas gotitas, el agua cae como lluvia. A esto se le llama precipitación.",
+        "chip_label": "Lluvia",
+        "guide": "¡Ahora caigo como lluvia!",
+        "question": "¿Qué cae de las nubes cuando tienen muchas gotitas?",
+        "options": ["Lluvia", "Fuego", "Piedras"],
+        "answer": "Lluvia",
+    },
+    {
+        "id": 7,
+        "title": "Escurrimiento",
+        "icon": "🌊",
+        "image": "paso_07.png",
+        "text": "Parte del agua corre por la superficie de la tierra. Puede bajar por montañas, formar arroyos y llegar a ríos, lagos o mares.",
+        "chip_label": "Escurrimiento",
+        "guide": "¡Estoy viajando por la tierra hacia un río!",
+        "question": "¿Por dónde puede viajar el agua después de caer?",
+        "options": ["Por ríos y arroyos", "Solo por el cielo", "Solo por las casas"],
+        "answer": "Por ríos y arroyos",
+    },
+    {
+        "id": 8,
+        "title": "Infiltración",
+        "icon": "🌱",
+        "image": "paso_08.png",
+        "text": "Otra parte del agua entra en el suelo. Esa agua puede quedarse guardada debajo de la tierra.",
+        "chip_label": "Infiltración",
+        "guide": "¡Estoy entrando al suelo para seguir mi viaje por debajo de la tierra!",
+        "question": "¿Qué pasa cuando el agua entra al suelo?",
+        "options": ["Se infiltra", "Se convierte en fuego", "Desaparece para siempre"],
+        "answer": "Se infiltra",
+    },
+    {
+        "id": 9,
+        "title": "Regreso al mar",
+        "icon": "💧",
+        "image": "paso_09.png",
+        "text": "El agua subterránea y los ríos pueden regresar al mar. Después, el Sol vuelve a calentar el agua y el ciclo comienza otra vez.",
+        "chip_label": "Regreso",
+        "guide": "¡Volví al mar y mi viaje puede empezar otra vez!",
+        "question": "¿Qué pasa cuando el agua vuelve al mar?",
+        "options": ["El ciclo puede comenzar otra vez", "El agua desaparece", "Ya no vuelve a moverse"],
+        "answer": "El ciclo puede comenzar otra vez",
+    },
+]
+WATER_JOURNEY_IMAGE_CANDIDATES = [
+    WATER_JOURNEY_RESOURCES_DIR / "pasos_reconstruidos",
+    BASE_DIR / "Fotos" / "pasos_reconstruidos",
+    BASE_DIR / "pasos_reconstruidos",
+]
+WATER_JOURNEY_FINAL_CARD = {
+    "title": "¡La gotita completó su viaje!",
+    "text": "Ahora sabes que el agua sube como vapor, forma nubes, cae como lluvia, corre por la tierra, entra al suelo y vuelve al mar para comenzar otra vez.",
+    "bullets": [
+        "☀️ El Sol calienta el agua.",
+        "☁️ El vapor forma nubes.",
+        "🌧️ Las nubes dejan caer lluvia.",
+        "🌊 El agua corre por ríos y arroyos.",
+        "🌱 Parte del agua entra al suelo.",
+        "💧 El ciclo vuelve a empezar.",
     ],
 }
 
@@ -439,6 +568,52 @@ def load_quiz_payload() -> tuple[dict, Optional[str]]:
         return load_quiz_payload_from_local(), (
             "No se pudieron cargar las preguntas desde Google Sheets. Se usó la versión local."
         )
+
+
+def load_svg_markup(svg_name: str) -> Optional[str]:
+    svg_path = CYCLE_WATER_DIR / svg_name
+    if not svg_path.exists():
+        return None
+    return svg_path.read_text(encoding="utf-8")
+
+
+@st.cache_data(show_spinner=False)
+def load_water_base_image_uri() -> Optional[str]:
+    image_path = CYCLE_WATER_DIR / "ciclo_base.png"
+    if not image_path.exists():
+        return None
+    encoded = base64.b64encode(image_path.read_bytes()).decode("utf-8")
+    return f"data:image/png;base64,{encoded}"
+
+
+def resolve_water_journey_image(image_name: str) -> Optional[Path]:
+    for directory in WATER_JOURNEY_IMAGE_CANDIDATES:
+        candidate = directory / image_name
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def load_water_journey_display_image(image_path: Optional[Path]) -> Optional[Image.Image]:
+    if image_path is None or not image_path.exists():
+        return None
+    try:
+        with Image.open(image_path) as raw_image:
+            prepared = raw_image.convert("RGBA")
+            padded = ImageOps.expand(prepared, border=(14, 58, 14, 12), fill=(255, 255, 255, 0))
+            canvas = Image.new("RGB", padded.size, "white")
+            canvas.paste(padded, mask=padded.getchannel("A"))
+            return canvas
+    except Exception:
+        return None
+
+
+def water_journey_step_state(step_id: int, current_step: int, visited_steps: set[int]) -> str:
+    if step_id == current_step:
+        return "active"
+    if step_id in visited_steps:
+        return "visited"
+    return "future"
 
 
 def station_options(dataset: pd.DataFrame) -> list[str]:
@@ -848,6 +1023,33 @@ def reset_quiz_progress() -> None:
     st.session_state["quiz_results"] = {}
 
 
+def reset_water_journey() -> None:
+    st.session_state["water_journey_started"] = False
+    st.session_state["water_journey_finished"] = False
+    st.session_state["water_journey_step"] = None
+    st.session_state["water_journey_unlocked"] = 1
+    st.session_state["water_journey_feedback"] = {}
+    st.session_state["paso_ciclo_agua"] = 1
+    st.session_state["paso_ciclo_agua_finalizado"] = False
+    st.session_state["water_journey_visited"] = [1]
+    st.session_state["water_journey_question_feedback"] = {}
+
+
+VIEW_OPTIONS = {
+    "mapa": "Mapa climático",
+    "reto": "Reto del Agua",
+    "gotita": "Viaje de una gotita",
+}
+VIEW_LABEL_TO_SLUG = {label: slug for slug, label in VIEW_OPTIONS.items()}
+
+
+def set_view_query(slug: str, step_id: Optional[int] = None) -> None:
+    st.query_params.clear()
+    st.query_params["view"] = slug
+    if step_id is not None:
+        st.query_params["gota"] = str(step_id)
+
+
 def ensure_quiz_state() -> None:
     defaults = {
         "quiz_started": False,
@@ -855,6 +1057,15 @@ def ensure_quiz_state() -> None:
         "quiz_current_index": 0,
         "quiz_checked": False,
         "quiz_results": {},
+        "water_journey_started": False,
+        "water_journey_finished": False,
+        "water_journey_step": None,
+        "water_journey_unlocked": 1,
+        "water_journey_feedback": {},
+        "paso_ciclo_agua": 1,
+        "paso_ciclo_agua_finalizado": False,
+        "water_journey_visited": [1],
+        "water_journey_question_feedback": {},
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -1017,6 +1228,172 @@ def render_quiz_view() -> None:
             else:
                 st.session_state["quiz_current_index"] = current_index + 1
             st.rerun()
+
+
+def mostrar_viaje_gotita() -> None:
+    ensure_quiz_state()
+    total_steps = len(WATER_JOURNEY_STEPS)
+    requested_step = st.query_params.get("gota")
+    if requested_step is not None:
+        try:
+            st.session_state["paso_ciclo_agua"] = int(requested_step)
+        except (TypeError, ValueError):
+            st.session_state["paso_ciclo_agua"] = st.session_state.get("paso_ciclo_agua", 1)
+
+    current_step = int(st.session_state.get("paso_ciclo_agua", 1))
+    current_step = min(max(current_step, 1), total_steps)
+    st.session_state["paso_ciclo_agua"] = current_step
+    st.session_state["water_journey_started"] = True
+    st.session_state["water_journey_step"] = current_step
+    visited_steps = {int(step_id) for step_id in st.session_state.get("water_journey_visited", [1])}
+    visited_steps.add(current_step)
+    st.session_state["water_journey_visited"] = sorted(visited_steps)
+
+    st.markdown("# Viaje de una gotita")
+    st.markdown("Sigue el recorrido del agua con imágenes grandes, explicaciones cortas y botones sencillos.")
+    st.markdown(
+        """
+        <div class="journey-mission-card">
+            <div class="section-label">💧 Misión de la gotita</div>
+            <p>Ayuda a la gotita a completar su viaje por el ciclo del agua. Avanza paso por paso y descubre cómo el agua sube, forma nubes, cae como lluvia y vuelve a empezar.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    with st.container():
+        st.markdown(
+            """
+            <div class="journey-chip-shell journey-chip-buttons">
+                <div class="section-label">Ruta de la gotita</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        step_rows = [WATER_JOURNEY_STEPS[:5], WATER_JOURNEY_STEPS[5:]]
+        for row_index, row_items in enumerate(step_rows):
+            if not row_items:
+                continue
+
+            if len(row_items) == 5:
+                column_widths = [1, 1, 1, 1, 1]
+                button_positions = [0, 1, 2, 3, 4]
+            else:
+                column_widths = [0.45, 1, 1, 1, 1, 0.45]
+                button_positions = [1, 2, 3, 4]
+
+            flow_cols = st.columns(column_widths, gap="small")
+            for item_index, item in enumerate(row_items):
+                button_col = flow_cols[button_positions[item_index]]
+                state_class = water_journey_step_state(item["id"], current_step, visited_steps)
+                button_type = "primary" if state_class == "active" else "secondary"
+                label = f"{item['id']} {item['icon']} {item['chip_label']}"
+                if button_col.button(label, key=f"journey_chip_{item['id']}", width="stretch", type=button_type):
+                    st.session_state["paso_ciclo_agua"] = item["id"]
+                    st.session_state["water_journey_step"] = item["id"]
+                    st.session_state["water_journey_finished"] = False
+                    st.session_state["paso_ciclo_agua_finalizado"] = False
+                    visited_steps.add(item["id"])
+                    st.session_state["water_journey_visited"] = sorted(visited_steps)
+                    set_view_query("gotita", item["id"])
+                    st.rerun()
+
+    if st.session_state.get("paso_ciclo_agua_finalizado", False):
+        st.progress(1.0)
+        st.markdown(
+            f"""
+            <div class="journey-finish-card">
+                <div class="section-label">{WATER_JOURNEY_FINAL_CARD['title']}</div>
+                <h2>{WATER_JOURNEY_FINAL_CARD['text']}</h2>
+                <ul class="journey-summary-list">
+                    {''.join(f"<li>{html.escape(item)}</li>" for item in WATER_JOURNEY_FINAL_CARD['bullets'])}
+                </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button("Volver a empezar", key="journey_restart_button", width="stretch", type="primary"):
+            reset_water_journey()
+            set_view_query("gotita", 1)
+            st.rerun()
+        return
+
+    step = WATER_JOURNEY_STEPS[current_step - 1]
+    progress_ratio = current_step / total_steps
+    step_label = f"Paso {current_step} de {total_steps}"
+    image_path = resolve_water_journey_image(step["image"])
+    display_image = load_water_journey_display_image(image_path)
+
+    image_col, detail_col = st.columns([1.72, 0.9], gap="large")
+    with image_col:
+        st.markdown('<div class="journey-image-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-label">Imagen principal</div>', unsafe_allow_html=True)
+        if display_image is not None:
+            st.image(display_image, use_container_width=True)
+        elif image_path is not None:
+            st.image(str(image_path), use_container_width=True)
+        else:
+            st.markdown('<div class="journey-svg-placeholder">Imagen no disponible</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with detail_col:
+        st.markdown(
+            f"""
+            <div class="journey-step-card simple">
+                <div class="journey-step-top">
+                    <div class="journey-step-badge">{step_label}</div>
+                    <div class="journey-step-icon">{step['icon']}</div>
+                </div>
+                <h2>{step['title']}</h2>
+                <p class="journey-copy">{step['text']}</p>
+                <div class="journey-guide-card">
+                    <div class="journey-guide-title">💧 La gotita dice:</div>
+                    <p>{step['guide']}</p>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.progress(progress_ratio)
+
+    prev_col, next_col, repeat_col = st.columns(3, gap="small")
+    prev_disabled = current_step == 1
+    next_label = "Finalizar" if current_step == total_steps else "Siguiente"
+
+    if prev_col.button("Anterior", key="journey_previous", width="stretch", disabled=prev_disabled):
+        previous_step = max(1, current_step - 1)
+        st.session_state["paso_ciclo_agua"] = previous_step
+        st.session_state["water_journey_step"] = st.session_state["paso_ciclo_agua"]
+        st.session_state["water_journey_finished"] = False
+        st.session_state["paso_ciclo_agua_finalizado"] = False
+        set_view_query("gotita", previous_step)
+        st.rerun()
+
+    if next_col.button(next_label, key="journey_next_step", width="stretch", type="primary"):
+        if current_step == total_steps:
+            st.session_state["paso_ciclo_agua_finalizado"] = True
+            st.session_state["water_journey_finished"] = True
+            set_view_query("gotita", current_step)
+        else:
+            next_step = current_step + 1
+            st.session_state["paso_ciclo_agua"] = next_step
+            st.session_state["water_journey_step"] = st.session_state["paso_ciclo_agua"]
+            st.session_state["water_journey_finished"] = False
+            visited_steps.add(next_step)
+            st.session_state["water_journey_visited"] = sorted(visited_steps)
+            set_view_query("gotita", next_step)
+        st.rerun()
+
+    if repeat_col.button("Repetir", key="journey_repeat", width="stretch"):
+        reset_water_journey()
+        set_view_query("gotita", 1)
+        st.rerun()
+
+
+def render_water_journey_view() -> None:
+    mostrar_viaje_gotita()
 
 
 def render_map_sidebar(stations: pd.DataFrame, options: list[str], years: list[int]) -> None:
@@ -1194,7 +1571,17 @@ st.markdown(
         .quiz-hero,
         .quiz-question-shell,
         .quiz-question-card,
-        .quiz-finish-card {{
+        .quiz-finish-card,
+        .journey-hero,
+        .journey-mission-card,
+        .journey-chip-shell,
+        .journey-step-card,
+        .journey-finish-card,
+        .journey-scene-card,
+        .journey-image-card,
+        .journey-status-panel,
+        .journey-svg-placeholder,
+        .journey-svg-frame {{
             background: rgba(255, 250, 240, 0.92);
             border: 1px solid rgba(155,106,47,0.10);
             border-radius: 1.2rem;
@@ -1217,7 +1604,17 @@ st.markdown(
         .quiz-hero,
         .quiz-question-shell,
         .quiz-question-card,
-        .quiz-finish-card {{
+        .quiz-finish-card,
+        .journey-hero,
+        .journey-mission-card,
+        .journey-chip-shell,
+        .journey-step-card,
+        .journey-finish-card,
+        .journey-scene-card,
+        .journey-image-card,
+        .journey-status-panel,
+        .journey-svg-placeholder,
+        .journey-svg-frame {{
             padding: 1.1rem 1.2rem;
         }}
         .info-card *,
@@ -1226,7 +1623,14 @@ st.markdown(
         .quiz-hero *,
         .quiz-question-shell *,
         .quiz-question-card *,
-        .quiz-finish-card * {{
+        .quiz-finish-card *,
+        .journey-hero *,
+        .journey-mission-card *,
+        .journey-chip-shell *,
+        .journey-step-card *,
+        .journey-finish-card *,
+        .journey-image-card *,
+        .journey-status-panel * {{
             overflow-wrap: anywhere;
             word-break: break-word;
         }}
@@ -1429,6 +1833,354 @@ st.markdown(
             font-size: 1.4rem;
             line-height: 1;
         }}
+        .journey-hero {{
+            padding: 1.35rem;
+            background:
+                radial-gradient(circle at top left, rgba(88,197,232,0.16), transparent 24%),
+                radial-gradient(circle at bottom right, rgba(217,121,37,0.10), transparent 20%),
+                linear-gradient(180deg, #fffaf2 0%, #fffdf8 100%);
+            margin-bottom: 0.9rem;
+        }}
+        .journey-copy {{
+            color: {COLORS["muted"]};
+            line-height: 1.65;
+            font-size: 1.02rem;
+        }}
+        .journey-mission-card {{
+            padding: 1rem 1.15rem;
+            margin-bottom: 0.8rem;
+            background:
+                radial-gradient(circle at top right, rgba(88,197,232,0.10), transparent 24%),
+                linear-gradient(180deg, #fffdf8 0%, #fffaf2 100%);
+        }}
+        .journey-mission-card p {{
+            margin: 0.35rem 0 0 0;
+            color: {COLORS["muted"]};
+            line-height: 1.65;
+            font-size: 1rem;
+        }}
+        .journey-chip-shell {{
+            padding: 0.95rem 1rem;
+            margin-bottom: 0.95rem;
+        }}
+        .journey-chip-row {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-top: 0.7rem;
+        }}
+        .journey-chip {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 999px;
+            border: 1px solid rgba(155,106,47,0.12);
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+            box-shadow: 0 8px 18px rgba(114, 92, 54, 0.05);
+        }}
+        .journey-chip:hover {{
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(114, 92, 54, 0.08);
+        }}
+        .journey-chip-number {{
+            width: 1.55rem;
+            height: 1.55rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.86rem;
+            background: rgba(255,255,255,0.72);
+        }}
+        .journey-chip-label {{
+            font-size: 0.94rem;
+            line-height: 1.1;
+        }}
+        .journey-chip.active {{
+            background: rgba(255, 139, 75, 0.18);
+            color: {COLORS["text"]};
+            border-color: rgba(217,121,37,0.22);
+        }}
+        .journey-chip.visited {{
+            background: rgba(88,197,232,0.16);
+            color: #204a66;
+            border-color: rgba(88,197,232,0.22);
+        }}
+        .journey-chip.future {{
+            background: rgba(236, 231, 220, 0.76);
+            color: {COLORS["muted"]};
+            border-color: rgba(155,106,47,0.10);
+        }}
+        div[data-testid="stVerticalBlock"]:has(.journey-chip-buttons) div[data-testid="stButton"] {{
+            display: flex;
+            justify-content: center;
+        }}
+        div[data-testid="stVerticalBlock"]:has(.journey-chip-buttons) div[data-testid="stButton"] > button {{
+            min-height: 2.7rem;
+            padding: 0.3rem 0.95rem;
+            border-radius: 999px;
+            font-size: 0.98rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            box-shadow: 0 6px 14px rgba(114, 92, 54, 0.05);
+        }}
+        .journey-image-card {{
+            padding: 0.75rem 0.8rem 0.6rem 0.8rem;
+        }}
+        .journey-image-card img {{
+            border-radius: 1rem;
+            border: 1px solid rgba(155,106,47,0.10);
+        }}
+        .journey-image-card [data-testid="stImage"] {{
+            margin-top: 0.4rem;
+        }}
+        .journey-image-card [data-testid="stImage"] img {{
+            object-fit: contain;
+        }}
+        .journey-status-panel {{
+            margin-top: 1rem;
+            background: rgba(255,255,255,0.72);
+        }}
+        .journey-status-grid {{
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.65rem;
+        }}
+        .journey-status-pill {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.38rem;
+            padding: 0.72rem 0.55rem;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(155,106,47,0.10);
+            font-weight: 700;
+            color: {COLORS["muted"]};
+            background: rgba(236, 231, 220, 0.82);
+            text-align: center;
+        }}
+        .journey-status-pill span {{
+            font-size: 1.05rem;
+            line-height: 1;
+        }}
+        .journey-status-pill.active {{
+            background: rgba(255, 139, 75, 0.18);
+            color: {COLORS["text"]};
+            border-color: rgba(217,121,37,0.18);
+        }}
+        .journey-status-pill.visited {{
+            background: rgba(88,197,232,0.16);
+            color: {COLORS["text"]};
+            border-color: rgba(88,197,232,0.20);
+        }}
+        .journey-status-pill.future {{
+            opacity: 0.82;
+        }}
+        .journey-badges {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 1rem;
+        }}
+        .journey-badges span {{
+            background: rgba(255,255,255,0.88);
+            border: 1px solid rgba(155,106,47,0.10);
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            font-weight: 700;
+            color: {COLORS["text"]};
+        }}
+        .journey-scene-card {{
+            padding: 1rem;
+            margin: 0.9rem 0 1rem 0;
+        }}
+        .journey-scene-note {{
+            color: {COLORS["muted"]};
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }}
+        .journey-scene {{
+            position: relative;
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: rgba(255,255,255,0.74);
+        }}
+        .journey-scene img {{
+            display: block;
+            width: 100%;
+            height: auto;
+        }}
+        .journey-guide {{
+            position: absolute;
+            right: 2.4%;
+            bottom: 5%;
+            font-size: clamp(2rem, 3vw, 3rem);
+            filter: drop-shadow(0 8px 14px rgba(0,0,0,0.14));
+            animation: bob 2.4s ease-in-out infinite;
+        }}
+        .journey-marker {{
+            position: absolute;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            text-decoration: none;
+            border: 3px solid rgba(255,255,255,0.95);
+            box-shadow: 0 10px 22px rgba(24, 53, 92, 0.16);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+            z-index: 3;
+        }}
+        .journey-marker:hover {{
+            transform: translate(-50%, -50%) scale(1.05);
+        }}
+        .journey-marker.active,
+        .journey-marker.ready {{
+            background: {COLORS["orange"]};
+            color: white;
+        }}
+        .journey-marker.active {{
+            animation: pulse-ring 1.8s ease-in-out infinite;
+        }}
+        .journey-marker.visited {{
+            background: {COLORS["sky"]};
+            color: white;
+        }}
+        .journey-marker.locked {{
+            background: #d7dce3;
+            color: #7a7f87;
+            pointer-events: none;
+            opacity: 0.7;
+        }}
+        .journey-highlight {{
+            position: absolute;
+            border-radius: 999px;
+            background: rgba(255, 214, 92, 0.20);
+            border: 3px solid rgba(255, 139, 75, 0.35);
+            opacity: 0;
+            z-index: 2;
+            transition: opacity 0.25s ease;
+        }}
+        .journey-scene.vapores-mar .highlight-vapores-mar,
+        .journey-scene.nubes-cielo .highlight-nubes-cielo,
+        .journey-scene.lluvia-montana .highlight-lluvia-montana,
+        .journey-scene.rio-baja .highlight-rio-baja,
+        .journey-scene.suelo-infiltra .highlight-suelo-infiltra,
+        .journey-scene.lago-centro .highlight-lago-centro {{
+            opacity: 1;
+            animation: glow-soft 1.6s ease-in-out infinite alternate;
+        }}
+        .highlight-vapores-mar {{ left: 69%; top: 45%; width: 18%; height: 28%; }}
+        .highlight-nubes-cielo {{ left: 48%; top: 6%; width: 29%; height: 18%; }}
+        .highlight-lluvia-montana {{ left: 7%; top: 10%; width: 24%; height: 28%; }}
+        .highlight-rio-baja {{ left: 28%; top: 37%; width: 38%; height: 18%; }}
+        .highlight-suelo-infiltra {{ left: 4%; top: 67%; width: 26%; height: 24%; }}
+        .highlight-lago-centro {{ left: 51%; top: 47%; width: 19%; height: 18%; }}
+        .journey-step-card {{
+            padding: 1.2rem 1.25rem;
+            margin-bottom: 0.85rem;
+        }}
+        .journey-guide-card {{
+            margin-top: 1rem;
+            padding: 0.9rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 248, 231, 0.92);
+            border: 1px solid rgba(217,121,37,0.14);
+        }}
+        .journey-guide-title {{
+            color: {COLORS["brown"]};
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }}
+        .journey-guide-card p {{
+            margin: 0;
+            color: {COLORS["text"]};
+            line-height: 1.55;
+            font-weight: 600;
+        }}
+        .journey-step-top {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }}
+        .journey-step-badge {{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.6rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 0.95rem;
+            background: rgba(255, 139, 75, 0.16);
+            border: 1px solid rgba(217,121,37,0.16);
+            color: {COLORS["brown"]};
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }}
+        .journey-step-icon {{
+            font-size: 2rem;
+            line-height: 1;
+            padding-top: 0.2rem;
+        }}
+        .journey-step-card h2,
+        .journey-finish-card h2 {{
+            font-size: clamp(1.8rem, 2.5vw, 3rem);
+            margin-top: 0;
+            margin-bottom: 0.45rem;
+        }}
+        .journey-svg-frame,
+        .journey-svg-placeholder {{
+            padding: 1rem;
+            margin: 0.9rem 0 1rem 0;
+            background: rgba(255,255,255,0.76);
+            text-align: center;
+        }}
+        .journey-svg-frame svg {{
+            width: 100%;
+            height: auto;
+            max-height: 540px;
+            display: block;
+            margin: 0 auto;
+        }}
+        .journey-svg-placeholder {{
+            color: {COLORS["muted"]};
+            font-weight: 700;
+        }}
+        .journey-finish-card {{
+            padding: 1.35rem;
+            background:
+                radial-gradient(circle at top right, rgba(126,184,109,0.14), transparent 24%),
+                linear-gradient(180deg, #fffaf1 0%, #fffdf8 100%);
+        }}
+        .journey-summary-list {{
+            margin-top: 0.8rem;
+            padding-left: 1.2rem;
+            line-height: 1.8;
+        }}
+        @keyframes pulse-ring {{
+            0%, 100% {{ box-shadow: 0 0 0 0 rgba(255, 139, 75, 0.20), 0 10px 22px rgba(24, 53, 92, 0.16); }}
+            50% {{ box-shadow: 0 0 0 10px rgba(255, 139, 75, 0.02), 0 12px 26px rgba(24, 53, 92, 0.18); }}
+        }}
+        @keyframes glow-soft {{
+            from {{ transform: scale(1); }}
+            to {{ transform: scale(1.03); }}
+        }}
+        @keyframes bob {{
+            0%, 100% {{ transform: translateY(0px); }}
+            50% {{ transform: translateY(-8px); }}
+        }}
         .quiz-question-shell {{
             padding: 0.9rem 1rem 1.1rem 1rem;
             margin-bottom: 0.85rem;
@@ -1593,6 +2345,18 @@ st.markdown(
             .quiz-hero-stats {{
                 grid-template-columns: 1fr;
             }}
+            .journey-chip-row {{
+                gap: 0.55rem;
+            }}
+            .journey-chip {{
+                width: 100%;
+                justify-content: flex-start;
+            }}
+            .journey-marker {{
+                width: 40px;
+                height: 40px;
+                font-size: 0.95rem;
+            }}
             .quiz-hero-top,
             .quiz-question-top {{
                 align-items: flex-start;
@@ -1619,16 +2383,44 @@ except FileNotFoundError as error:
     st.stop()
 
 
+requested_view = st.query_params.get("view", "mapa")
+if requested_view not in VIEW_OPTIONS:
+    requested_view = "mapa"
+
+requested_label = VIEW_OPTIONS[requested_view]
+last_query_view = st.session_state.get("_last_query_view")
+if "current_view" not in st.session_state:
+    st.session_state["current_view"] = requested_label
+elif last_query_view != requested_view and st.session_state.get("current_view") != requested_label:
+    st.session_state["current_view"] = requested_label
+st.session_state["_last_query_view"] = requested_view
+
 with st.sidebar:
     st.markdown("## Navegación")
     current_view = st.selectbox(
         "Ir a sección",
-        ["Mapa climático", "Reto del Agua"],
+        list(VIEW_OPTIONS.values()),
         key="current_view",
     )
+
+current_view_slug = VIEW_LABEL_TO_SLUG[current_view]
+query_step = st.query_params.get("gota")
+expected_step = int(st.session_state.get("paso_ciclo_agua", 1))
+if current_view_slug == "gotita" and query_step is not None:
+    try:
+        expected_step = int(query_step)
+    except (TypeError, ValueError):
+        expected_step = int(st.session_state.get("paso_ciclo_agua", 1))
+needs_query_update = st.query_params.get("view") != current_view_slug
+if current_view_slug == "gotita":
+    needs_query_update = needs_query_update or str(query_step) != str(expected_step)
+if needs_query_update:
+    set_view_query(current_view_slug, expected_step if current_view_slug == "gotita" else None)
 
 
 if current_view == "Mapa climático":
     render_map_view(dataset, stations)
-else:
+elif current_view == "Reto del Agua":
     render_quiz_view()
+else:
+    render_water_journey_view()
