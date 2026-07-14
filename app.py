@@ -63,22 +63,38 @@ COLORS = {
     "error_text": "#a24c34",
 }
 STATION_IMAGE_FILES = {
-    15062: "toluca.jpg",
-    10048: "durango.jpeg",
-    1008: "tepezala.jpeg",
-    2034: "mexicalo.jpg",
-    11070: "guanajuato.jpg",
-    4024: "campeche.jpeg",
-    31097: "yucatan.jpeg",
+    15062: ["toluca.jpg"],
+    10048: ["durango.jpeg"],
+    1008: ["tepezala.jpeg"],
+    2034: ["mexicalo.jpg"],
+    2036: ["ensenada.jpeg", "ensenada.jpg"],
+    5034: ["coahuila.jpg"],
+    11070: ["guanajuato.jpg"],
+    4024: ["campeche.jpeg"],
+    31097: ["yucatan.jpeg"],
 }
 STATION_PLACE_DESCRIPTIONS = {
     15062: "Esta estación representa un clima frío de alta montaña. Se ubica a gran altitud, por eso las temperaturas se mantienen bajas durante buena parte del año. Es útil para mostrar que en México también existen zonas donde puede hacer mucho frío.",
     10048: "Esta estación representa un clima semifrío de sierra. La altitud ayuda a que el ambiente sea fresco durante gran parte del año, con temperaturas más bajas que en las zonas cálidas del país.",
     1008: "Esta estación representa un clima árido. En este tipo de lugar llueve poco y el paisaje suele tener vegetación adaptada a la falta de agua, como matorrales y plantas resistentes.",
     2034: "Esta estación representa un clima muy árido. Es una zona con muy poca lluvia y temperaturas muy altas en parte del año. Sirve para explicar los ambientes secos y calurosos.",
+    2036: "Esta estación representa una zona costera de Baja California. Aunque es seca, la cercanía al mar ayuda a moderar el clima. Sirve para mostrar que no todos los lugares secos son iguales.",
+    5034: "Esta estación representa una zona seca del norte de México. Saltillo se encuentra a buena altitud, por eso puede ser más fresco que otros lugares secos. Sirve para comparar el norte seco con zonas donde llueve mucho más.",
     11070: "Esta estación representa un clima semiárido. No es tan seco como un desierto, pero la lluvia es limitada y el paisaje puede tener vegetación baja, pastizales y matorrales.",
     4024: "Esta estación representa un clima cálido húmedo. Es un lugar con temperaturas altas y mucha lluvia, por lo que suele haber ríos, humedad y vegetación abundante.",
     31097: "Esta estación representa un clima cálido subhúmedo. Hace calor durante gran parte del año, pero la lluvia se concentra más en ciertos meses, por eso hay temporada de lluvias y temporada más seca.",
+}
+STATION_CHILD_MESSAGES = {
+    2036: "Aqui llueve poco, pero el mar ayuda a que el clima sea diferente al de otros lugares muy secos.",
+    5034: "Aqui llueve poco, pero la altura ayuda a que no sea tan caliente como otros lugares secos.",
+}
+STATION_CLIMATE_EXPLANATION_OVERRIDES = {
+    2036: "Esta estación representa una zona costera de Baja California. Aunque es seca, la cercanía al mar ayuda a moderar el clima.",
+    5034: "Esta estación representa una zona seca del norte de México. Saltillo está a buena altitud, por eso puede sentirse más fresco que otros lugares secos.",
+}
+STATION_SHORT_DESCRIPTION_OVERRIDES = {
+    2036: "Lugar seco cercano al mar",
+    5034: "Lugar seco de altitud",
 }
 DEFAULT_GOOGLE_SHEET_ID = "1MHYx1jypG_-rCEyFyvGIO5ZvqnUSGK2bAwgl50HbJ58"
 DEFAULT_GOOGLE_SHEET_PREGUNTAS_GID = "445447247"
@@ -205,13 +221,8 @@ def find_first_existing_path(candidates: list[str]) -> Optional[Path]:
 
 
 @st.cache_data(show_spinner=False)
-def load_dataset() -> tuple[pd.DataFrame, Path]:
-    dataset_path = find_first_existing_path(
-        ["dataset_mapa_clima_demo_2015_2024.csv", "dataset_mapa_clima_demo_2015_2024.xlsx"]
-    )
-    if dataset_path is None:
-        raise FileNotFoundError("No se encontró el dataset principal dentro del proyecto.")
-
+def read_dataset_file(dataset_path_str: str, dataset_mtime: float) -> pd.DataFrame:
+    dataset_path = Path(dataset_path_str)
     if dataset_path.suffix.lower() == ".xlsx":
         df = pd.read_excel(dataset_path)
     else:
@@ -242,17 +253,23 @@ def load_dataset() -> tuple[pd.DataFrame, Path]:
     if "month_name" in df.columns:
         df["month_name"] = pd.Categorical(df["month_name"], categories=MONTH_ORDER, ordered=True)
     df["station_label"] = df.get("station_display_name", df.get("station_name")).fillna(df.get("station_name"))
+    return df
+
+
+def load_dataset() -> tuple[pd.DataFrame, Path]:
+    dataset_path = find_first_existing_path(
+        ["dataset_mapa_clima_demo_2015_2024.csv", "dataset_mapa_clima_demo_2015_2024.xlsx"]
+    )
+    if dataset_path is None:
+        raise FileNotFoundError("No se encontró el dataset principal dentro del proyecto.")
+
+    df = read_dataset_file(str(dataset_path), dataset_path.stat().st_mtime)
     return df, dataset_path
 
 
 @st.cache_data(show_spinner=False)
-def load_stations(dataset: pd.DataFrame) -> tuple[pd.DataFrame, Optional[Path]]:
-    stations_path = find_first_existing_path(["estaciones_demo_clima_2015_2024.csv"])
-    if stations_path is not None:
-        stations = pd.read_csv(stations_path, encoding="utf-8-sig")
-    else:
-        stations = dataset.drop_duplicates(subset=["station_label"]).copy()
-        stations_path = None
+def read_stations_file(stations_path_str: str, stations_mtime: float) -> pd.DataFrame:
+    stations = pd.read_csv(stations_path_str, encoding="utf-8-sig")
 
     for column in (
         "lat",
@@ -268,6 +285,16 @@ def load_stations(dataset: pd.DataFrame) -> tuple[pd.DataFrame, Optional[Path]]:
     stations["station_label"] = stations.get("station_display_name", stations.get("station_name")).fillna(
         stations.get("station_name")
     )
+    return stations
+
+
+def load_stations(dataset: pd.DataFrame) -> tuple[pd.DataFrame, Optional[Path]]:
+    stations_path = find_first_existing_path(["estaciones_demo_clima_2015_2024.csv"])
+    if stations_path is not None:
+        stations = read_stations_file(str(stations_path), stations_path.stat().st_mtime)
+    else:
+        stations = dataset.drop_duplicates(subset=["station_label"]).copy()
+        stations_path = None
     return stations, stations_path
 
 
@@ -422,14 +449,35 @@ def safe_climate_color(value: object) -> str:
     return value if isinstance(value, str) and value.strip() else COLORS["blue"]
 
 
+def marker_outline_color(fill_color: str) -> str:
+    pale_colors = {
+        COLORS["soft_yellow"].lower(),
+        COLORS["warm_yellow"].lower(),
+        "#f3ee82",
+        "#eceb38",
+    }
+    if fill_color.lower() in pale_colors:
+        return "#6f5422"
+    return "#ffffff"
+
+
 @st.cache_data(show_spinner=False)
 def load_station_image_uri(station_id: int) -> Optional[str]:
-    image_name = STATION_IMAGE_FILES.get(int(station_id))
-    if not image_name:
+    image_names = STATION_IMAGE_FILES.get(int(station_id))
+    if not image_names:
         return None
 
-    image_path = BASE_DIR / "Fotos" / image_name
-    if not image_path.exists():
+    if isinstance(image_names, str):
+        image_names = [image_names]
+
+    image_path = None
+    for image_name in image_names:
+        candidate = BASE_DIR / "Fotos" / image_name
+        if candidate.exists():
+            image_path = candidate
+            break
+
+    if image_path is None:
         return None
 
     with Image.open(image_path) as image:
@@ -657,15 +705,19 @@ def build_annual_temperature_chart(annual_df: pd.DataFrame) -> go.Figure:
 
 
 def station_card(station_row: pd.Series) -> str:
+    station_id = int(station_row["station_id"])
+    kid_message = STATION_CHILD_MESSAGES.get(station_id, station_row["mensaje_para_ninos"])
+    climate_explanation = STATION_CLIMATE_EXPLANATION_OVERRIDES.get(station_id, station_row["explicacion_clima"])
+    short_description = STATION_SHORT_DESCRIPTION_OVERRIDES.get(station_id, station_row["descripcion_corta"])
     return f"""
     <div class="info-card">
         <div class="section-label">Clima del lugar seleccionado</div>
         <h3>{station_row['tipo_clima_didactico']}</h3>
-        <p class="kid-message">{station_row['mensaje_para_ninos']}</p>
-        <p class="climate-text">{station_row['explicacion_clima']}</p>
+        <p class="kid-message">{kid_message}</p>
+        <p class="climate-text">{climate_explanation}</p>
         <p><strong>Estación:</strong> {station_row['station_label']}</p>
         <p><strong>Ubicación:</strong> {station_row['municipality'].title()}, {station_row['state'].title()}</p>
-        <p><strong>Descripción corta:</strong> {station_row['descripcion_corta']}</p>
+        <p><strong>Descripción corta:</strong> {short_description}</p>
         <div class="climate-metrics">
             <div><span>Altitud</span><strong>{station_row['altitude_m']:.0f} m</strong></div>
             <div><span>Temp. media anual</span><strong>{station_row['temperatura_media_anual']:.1f} °C</strong></div>
@@ -709,14 +761,15 @@ def build_station_map(stations: pd.DataFrame, selected_station: str) -> folium.M
         is_selected = row["station_label"] == selected_station
         radius = 16 if is_selected else 11
         climate_color = safe_climate_color(row.get("color_clima"))
-        weight = 6 if is_selected else 3
+        outline_color = marker_outline_color(climate_color)
+        weight = 4 if is_selected else 2.5
 
         popup = folium.Popup(popup_html(row), max_width=320)
         if is_selected:
             folium.CircleMarker(
                 location=[float(row["lat"]), float(row["lon"])],
                 radius=22,
-                color=climate_color,
+                color=outline_color,
                 weight=1,
                 fill=True,
                 fill_color=climate_color,
@@ -726,7 +779,7 @@ def build_station_map(stations: pd.DataFrame, selected_station: str) -> folium.M
         folium.CircleMarker(
             location=[float(row["lat"]), float(row["lon"])],
             radius=radius,
-            color="#ffffff",
+            color=outline_color,
             weight=weight,
             fill=True,
             fill_color=climate_color,
