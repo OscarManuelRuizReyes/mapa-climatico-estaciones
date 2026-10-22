@@ -924,7 +924,7 @@ def build_station_map(stations: pd.DataFrame, selected_station: str) -> folium.M
     fmap = folium.Map(
         location=[float(selected_row["lat"]), float(selected_row["lon"])],
         zoom_start=5,
-        tiles="CartoDB positron",
+        tiles="OpenStreetMap",
         control_scale=False,
         prefer_canvas=True,
     )
