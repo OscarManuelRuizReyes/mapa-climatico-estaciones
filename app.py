@@ -1600,11 +1600,14 @@ def render_map_view(dataset: pd.DataFrame, stations: pd.DataFrame) -> None:
     )
 
     st.markdown("## Tabla detallada de datos mensuales")
-    table_scope = st.radio(
-        "Alcance de la tabla",
-        ["Mostrar solo año seleccionado", "Mostrar todos los años de la estación"],
-        horizontal=True,
-    )
+    with st.container(key="table_scope_controls"):
+        st.markdown('<div class="table-scope-heading">Alcance de la tabla</div>', unsafe_allow_html=True)
+        table_scope = st.radio(
+            "Alcance de la tabla",
+            ["Mostrar solo año seleccionado", "Mostrar todos los años de la estación"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
     detailed_table = build_detailed_table(station_df, st.session_state["selected_year"], table_scope)
     st.dataframe(detailed_table, width="stretch", hide_index=True)
     st.download_button(
@@ -2511,10 +2514,20 @@ st.markdown(
             display: block;
             background: var(--cicy-surface);
             border: 1px solid var(--cicy-border);
-            border-top: 5px solid var(--cicy-green);
             border-radius: 14px;
             overflow: hidden;
+            margin-top: 0.35rem;
             margin-bottom: 1.35rem;
+        }}
+        .institutional-header::before {{
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 2;
+            height: 5px;
+            background: var(--cicy-green);
         }}
         .institutional-heading {{
             display: flex;
@@ -2721,6 +2734,58 @@ st.markdown(
             color: var(--cicy-blue);
             font-family: {FONT_FAMILY};
         }}
+        .st-key-table_scope_controls {{
+            margin: 0.2rem 0 0.8rem;
+            padding: 0.65rem 0.8rem 0.6rem;
+            background: var(--cicy-surface);
+            border: 1px solid var(--cicy-border);
+            border-left: 3px solid var(--cicy-green);
+            border-radius: 10px;
+        }}
+        .table-scope-heading {{
+            margin-bottom: 0.4rem;
+            color: var(--cicy-green);
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }}
+        .st-key-table_scope_controls div[data-testid="stRadio"] {{
+            margin: 0;
+        }}
+        .st-key-table_scope_controls div[data-testid="stRadio"] > div {{
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }}
+        .st-key-table_scope_controls div[data-testid="stRadio"] label {{
+            flex: 0 1 auto;
+            min-height: 0;
+            padding: 0.42rem 0.68rem;
+            background: var(--cicy-muted-surface);
+            border: 1px solid var(--cicy-border);
+            border-radius: 8px;
+            box-shadow: none;
+            transform: none;
+        }}
+        .st-key-table_scope_controls div[data-testid="stRadio"] label:hover {{
+            border-color: rgba(0, 86, 128, 0.42);
+            box-shadow: none;
+            transform: none;
+        }}
+        .st-key-table_scope_controls div[data-testid="stRadio"] label:has(input:checked) {{
+            background: {UI_COLORS["green_soft"]};
+            border-color: var(--cicy-green);
+            box-shadow: inset 0 0 0 1px rgba(123, 131, 35, 0.16);
+        }}
+        .st-key-table_scope_controls div[data-testid="stRadio"] label p {{
+            color: var(--cicy-text);
+            font-size: 0.9rem;
+            font-weight: 650;
+            line-height: 1.25;
+        }}
+        .st-key-table_scope_controls div[data-testid="stRadio"] label > div:first-child {{
+            margin-right: 0.35rem;
+        }}
         div[data-testid="stButton"] > button,
         div[data-testid="stDownloadButton"] > button {{
             border-radius: 8px;
@@ -2775,6 +2840,9 @@ st.markdown(
             .institutional-dot-divider::before {{
                 background-size: 9px 9px;
                 opacity: 0.72;
+            }}
+            .st-key-table_scope_controls div[data-testid="stRadio"] label {{
+                width: 100%;
             }}
             .institutional-footer {{
                 grid-template-columns: 1fr;
