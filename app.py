@@ -29,7 +29,6 @@ CYCLE_WATER_DIR = BASE_DIR / "Fotos" / "ciclo_agua"
 WATER_JOURNEY_RESOURCES_DIR = BASE_DIR / "Fotos" / "ciclo_hidrologico_recursos"
 BRAND_LOGO_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-blanco.png"
 BRAND_LOCKUP_PATH = BASE_DIR / "assets" / "logos" / "ciencia-tecnologia-cicy.png"
-BRAND_PATTERN_PATH = BASE_DIR / "assets" / "branding" / "talento-cicy-halftone-azul.png"
 SOURCE_DIRS = [
     DATA_DIR,
     BASE_DIR / "assets",
@@ -1084,18 +1083,12 @@ def render_institutional_header(active_section: str) -> None:
 
 def render_institutional_footer() -> None:
     lockup_uri = load_image_data_uri(str(BRAND_LOCKUP_PATH))
-    pattern_uri = load_image_data_uri(str(BRAND_PATTERN_PATH))
     lockup_html = (
         f'<img src="{lockup_uri}" alt="Ciencia y Tecnología y CICY">'
         if lockup_uri
         else ""
     )
-    divider_html = (
-        '<div class="institutional-dot-divider" aria-hidden="true" '
-        f'style="--brand-pattern: url(\'{pattern_uri}\');"></div>'
-        if pattern_uri
-        else ""
-    )
+    divider_html = '<div class="institutional-dot-divider" aria-hidden="true"></div>'
     st.markdown(
         f"""
         {divider_html}
@@ -2552,17 +2545,29 @@ st.markdown(
             font-size: 0.92rem;
         }}
         .institutional-dot-divider {{
+            position: relative;
             width: 100%;
-            height: 34px;
+            height: 54px;
             margin: 2.2rem 0 0;
-            background-image: var(--brand-pattern);
-            background-repeat: repeat-x;
-            background-position: center 46%;
-            background-size: 190px auto;
-            opacity: 0.38;
-            -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-            border-bottom: 2px solid rgba(123, 131, 35, 0.62);
+            overflow: hidden;
+        }}
+        .institutional-dot-divider::before {{
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(0, 86, 128, 0.52) 0 1.7px, transparent 1.9px);
+            background-size: 11px 11px;
+            -webkit-mask-image: radial-gradient(ellipse 105% 115% at 50% 100%, #000 0%, #000 42%, transparent 100%);
+            mask-image: radial-gradient(ellipse 105% 115% at 50% 100%, #000 0%, #000 42%, transparent 100%);
+        }}
+        .institutional-dot-divider::after {{
+            content: "";
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: rgba(123, 131, 35, 0.76);
         }}
         .institutional-footer {{
             position: relative;
@@ -2764,10 +2769,12 @@ st.markdown(
             .block-container {{ padding: 0.75rem 0.85rem 1.5rem; }}
             .institutional-heading {{ min-height: 0; padding: 1rem 1.1rem 1.15rem; }}
             .institutional-dot-divider {{
-                height: 20px;
+                height: 30px;
                 margin-top: 1.5rem;
-                background-size: 135px auto;
-                opacity: 0.26;
+            }}
+            .institutional-dot-divider::before {{
+                background-size: 9px 9px;
+                opacity: 0.72;
             }}
             .institutional-footer {{
                 grid-template-columns: 1fr;
