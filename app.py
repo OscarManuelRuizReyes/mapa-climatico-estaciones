@@ -1068,23 +1068,15 @@ def load_image_data_uri(image_path: str) -> str:
 
 
 def render_institutional_header(active_section: str) -> None:
-    logo_uri = load_image_data_uri(str(BRAND_LOGO_PATH))
     pattern_uri = load_image_data_uri(str(BRAND_PATTERN_PATH))
-    logo_html = (
-        f'<img src="{logo_uri}" alt="Talento CICY" class="institutional-logo">'
-        if logo_uri
-        else '<div class="institutional-logo-fallback">Talento CICY</div>'
-    )
     pattern_html = (
-        '<span class="institutional-header-pattern" aria-hidden="true" '
-        f'style="--brand-pattern: url(\'{pattern_uri}\');"></span>'
+        f'<img src="{pattern_uri}" alt="" class="institutional-header-pattern" aria-hidden="true">'
         if pattern_uri
         else ""
     )
     st.markdown(
         f"""
         <header class="institutional-header">
-            <div class="institutional-brand">{logo_html}</div>
             <div class="institutional-heading">
                 <div class="institutional-kicker">Herramienta educativa y climática</div>
                 <div class="institutional-title">Mapa interactivo de estaciones climáticas de México</div>
@@ -2515,33 +2507,21 @@ st.markdown(
         h2 {{ color: var(--cicy-green); }}
         h2, h3 {{ font-weight: 700; }}
         .sidebar-brand {{
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.18rem;
+            display: block;
             margin: 0.1rem 0 0.55rem;
-            padding: 0.42rem 0.65rem 0.48rem;
-            background: var(--cicy-blue);
-            border-radius: 9px;
+            padding: 0;
+            background: transparent;
         }}
         .sidebar-brand img {{
             display: block;
             width: 100%;
-            max-width: 140px;
+            max-width: 170px;
             height: auto;
-        }}
-        .sidebar-brand span {{
-            color: rgba(255,255,255,0.82);
-            font-size: 0.72rem;
-            font-weight: 650;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            border-radius: 8px;
         }}
         .institutional-header {{
             position: relative;
-            display: grid;
-            grid-template-columns: minmax(175px, 210px) 1fr;
-            align-items: stretch;
+            display: block;
             background: var(--cicy-surface);
             border: 1px solid var(--cicy-border);
             border-top: 5px solid var(--cicy-green);
@@ -2549,30 +2529,12 @@ st.markdown(
             overflow: hidden;
             margin-bottom: 1.35rem;
         }}
-        .institutional-brand {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 120px;
-            padding: 0.95rem 1.1rem;
-            background: var(--cicy-blue);
-        }}
-        .institutional-logo {{
-            display: block;
-            width: 100%;
-            max-width: 205px;
-            height: auto;
-        }}
-        .institutional-logo-fallback {{
-            color: #ffffff;
-            font-size: 1.4rem;
-            font-weight: 700;
-        }}
         .institutional-heading {{
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 1.15rem 9rem 1.15rem 1.5rem;
+            min-height: 126px;
+            padding: 1.2rem 13rem 1.2rem 1.6rem;
             min-width: 0;
             position: relative;
             z-index: 1;
@@ -2597,18 +2559,11 @@ st.markdown(
         }}
         .institutional-header-pattern {{
             position: absolute;
-            right: -1.2rem;
-            bottom: -1.6rem;
-            width: 9rem;
-            height: 7rem;
-            background: var(--cicy-green);
-            -webkit-mask-image: var(--brand-pattern);
-            mask-image: var(--brand-pattern);
-            -webkit-mask-size: cover;
-            mask-size: cover;
-            -webkit-mask-position: center;
-            mask-position: center;
-            opacity: 0.12;
+            right: -2.4rem;
+            bottom: -3rem;
+            width: 15rem;
+            height: auto;
+            opacity: 0.28;
             pointer-events: none;
         }}
         .institutional-footer {{
@@ -2677,7 +2632,7 @@ st.markdown(
             right: -2rem;
             top: -2.5rem;
             width: 230px;
-            opacity: 0.08;
+            opacity: 0.16;
             pointer-events: none;
         }}
         .map-shell,
@@ -2817,10 +2772,7 @@ st.markdown(
         }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 0.75rem 0.85rem 1.5rem; }}
-            .institutional-header {{ grid-template-columns: 1fr; }}
-            .institutional-brand {{ min-height: 92px; padding: 0.8rem 1rem; }}
-            .institutional-logo {{ max-width: 180px; }}
-            .institutional-heading {{ padding: 1rem 1.1rem 1.15rem; }}
+            .institutional-heading {{ min-height: 0; padding: 1rem 1.1rem 1.15rem; }}
             .institutional-header-pattern,
             .institutional-footer-pattern {{ display: none; }}
             .institutional-footer {{
@@ -2871,7 +2823,6 @@ with st.sidebar:
             f"""
             <div class="sidebar-brand">
                 <img src="{sidebar_logo_uri}" alt="Talento CICY">
-                <span>Herramienta climática</span>
             </div>
             """,
             unsafe_allow_html=True,
