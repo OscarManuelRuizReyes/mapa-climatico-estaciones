@@ -63,7 +63,7 @@ La interfaz adopta la guía de Talento CICY incluida en `Fuentes/branding/2026 B
 
 ## Autoría
 
-- Yalina Montecelos Zamora
+- Dra. Yalina Montecelos Zamora
 - Ing. Oscar Manuel Ruiz Reyes
 
 Proyecto desarrollado con referencia institucional de Talento CICY y CICY.

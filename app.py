@@ -28,6 +28,8 @@ QUIZ_DATA_PATH = BASE_DIR / "data" / "preguntas_reto_agua.json"
 CYCLE_WATER_DIR = BASE_DIR / "Fotos" / "ciclo_agua"
 WATER_JOURNEY_RESOURCES_DIR = BASE_DIR / "Fotos" / "ciclo_hidrologico_recursos"
 BRAND_LOGO_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-blanco.png"
+BRAND_LOCKUP_PATH = BASE_DIR / "assets" / "logos" / "ciencia-tecnologia-cicy.png"
+BRAND_PATTERN_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-halftone.png"
 SOURCE_DIRS = [
     DATA_DIR,
     BASE_DIR / "assets",
@@ -1057,15 +1059,16 @@ VIEW_LABEL_TO_SLUG = {label: slug for slug, label in VIEW_OPTIONS.items()}
 
 
 @st.cache_data(show_spinner=False)
-def load_brand_logo_uri() -> str:
-    if not BRAND_LOGO_PATH.exists():
+def load_image_data_uri(image_path: str) -> str:
+    path = Path(image_path)
+    if not path.exists():
         return ""
-    encoded = base64.b64encode(BRAND_LOGO_PATH.read_bytes()).decode("ascii")
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
     return f"data:image/png;base64,{encoded}"
 
 
 def render_institutional_header(active_section: str) -> None:
-    logo_uri = load_brand_logo_uri()
+    logo_uri = load_image_data_uri(str(BRAND_LOGO_PATH))
     logo_html = (
         f'<img src="{logo_uri}" alt="Talento CICY" class="institutional-logo">'
         if logo_uri
@@ -1087,17 +1090,36 @@ def render_institutional_header(active_section: str) -> None:
 
 
 def render_institutional_footer() -> None:
+    lockup_uri = load_image_data_uri(str(BRAND_LOCKUP_PATH))
+    pattern_uri = load_image_data_uri(str(BRAND_PATTERN_PATH))
+    lockup_html = (
+        f'<img src="{lockup_uri}" alt="Ciencia y Tecnología y CICY">'
+        if lockup_uri
+        else ""
+    )
+    pattern_html = (
+        f'<img src="{pattern_uri}" alt="" class="institutional-footer-pattern" aria-hidden="true">'
+        if pattern_uri
+        else ""
+    )
     st.markdown(
-        """
+        f"""
         <footer class="institutional-footer">
-            <div>
+            {pattern_html}
+            <div class="institutional-footer-copy">
                 <strong>Mapa interactivo de estaciones climáticas de México</strong>
                 <span>Proyecto educativo con identidad visual de Talento CICY.</span>
+                <div class="institutional-author-row">
+                    <span class="institutional-meta-label">Autores:</span>
+                    <div class="institutional-authors">
+                        <span>Dra. Yalina Montecelos Zamora</span>
+                        <span class="institutional-author-separator">·</span>
+                        <span>Ing. Oscar Manuel Ruiz Reyes</span>
+                    </div>
+                </div>
+                <span class="institutional-update">Actualización: noviembre de 2026</span>
             </div>
-            <div class="institutional-authors">
-                <span>Yalina Montecelos Zamora</span>
-                <span>Ing. Oscar Manuel Ruiz Reyes</span>
-            </div>
+            <div class="institutional-lockup">{lockup_html}</div>
         </footer>
         """,
         unsafe_allow_html=True,
@@ -1477,7 +1499,7 @@ def render_map_view(dataset: pd.DataFrame, stations: pd.DataFrame) -> None:
 
     selected_station = st.session_state["selected_station"]
 
-    st.markdown("# Mapa interactivo de estaciones climáticas de México")
+    st.markdown("## Mapa climático")
 
     st.markdown('<div class="map-shell">', unsafe_allow_html=True)
     st.markdown(
@@ -2467,7 +2489,31 @@ st.markdown(
             letter-spacing: -0.02em;
         }}
         h1 {{ font-weight: 750; }}
+        h2 {{ color: var(--cicy-green); }}
         h2, h3 {{ font-weight: 700; }}
+        .sidebar-brand {{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.3rem;
+            margin: 0.15rem 0 0.7rem;
+            padding: 0.65rem 0.75rem;
+            background: var(--cicy-blue);
+            border-radius: 9px;
+        }}
+        .sidebar-brand img {{
+            display: block;
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+        }}
+        .sidebar-brand span {{
+            color: rgba(255,255,255,0.82);
+            font-size: 0.72rem;
+            font-weight: 650;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }}
         .institutional-header {{
             display: grid;
             grid-template-columns: minmax(190px, 240px) 1fr;
@@ -2524,25 +2570,73 @@ st.markdown(
             font-size: 0.92rem;
         }}
         .institutional-footer {{
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 1.5rem;
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(280px, 440px);
+            align-items: center;
+            gap: 2rem;
             margin-top: 2.5rem;
-            padding: 1.2rem 0.25rem 0.35rem;
+            padding: 1.35rem 1.2rem 1.1rem;
+            overflow: hidden;
+            background: var(--cicy-surface);
             border-top: 3px solid var(--cicy-green);
+            border-bottom: 1px solid var(--cicy-border);
             color: var(--cicy-muted);
             font-size: 0.86rem;
         }}
-        .institutional-footer strong,
-        .institutional-footer span {{ display: block; }}
+        .institutional-footer-copy,
+        .institutional-lockup {{
+            position: relative;
+            z-index: 1;
+        }}
         .institutional-footer strong {{
+            display: block;
             color: var(--cicy-blue);
             margin-bottom: 0.28rem;
         }}
+        .institutional-author-row {{
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.8rem;
+        }}
+        .institutional-meta-label {{
+            color: var(--cicy-green);
+            font-weight: 750;
+        }}
         .institutional-authors {{
-            text-align: right;
-            line-height: 1.65;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            color: var(--cicy-text);
+            line-height: 1.5;
+        }}
+        .institutional-update {{
+            display: block;
+            margin-top: 0.35rem;
+            font-size: 0.8rem;
+        }}
+        .institutional-lockup {{
+            justify-self: end;
+            width: 100%;
+            max-width: 430px;
+            padding: 0.45rem;
+            background: #ffffff;
+            border-radius: 7px;
+        }}
+        .institutional-lockup img {{
+            display: block;
+            width: 100%;
+            height: auto;
+        }}
+        .institutional-footer-pattern {{
+            position: absolute;
+            right: -2rem;
+            top: -2.5rem;
+            width: 230px;
+            opacity: 0.08;
+            pointer-events: none;
         }}
         .map-shell,
         .info-card,
@@ -2679,8 +2773,19 @@ st.markdown(
             .institutional-brand {{ min-height: 92px; padding: 0.8rem 1rem; }}
             .institutional-logo {{ max-width: 180px; }}
             .institutional-heading {{ padding: 1rem 1.1rem 1.15rem; }}
-            .institutional-footer {{ flex-direction: column; }}
-            .institutional-authors {{ text-align: left; }}
+            .institutional-footer {{
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1.1rem 0.9rem;
+            }}
+            .institutional-author-row,
+            .institutional-authors {{
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 0.2rem;
+            }}
+            .institutional-author-separator {{ display: none; }}
+            .institutional-lockup {{ justify-self: start; }}
             .photo-frame {{ height: 260px; }}
         }}
     </style>
@@ -2709,11 +2814,18 @@ elif last_query_view != requested_view and st.session_state.get("current_view") 
     st.session_state["current_view"] = requested_label
 st.session_state["_last_query_view"] = requested_view
 
+sidebar_logo_uri = load_image_data_uri(str(BRAND_LOGO_PATH))
 with st.sidebar:
-    st.markdown(
-        '<div style="color:#005680;font-weight:800;letter-spacing:0.04em;">Talento CICY</div>',
-        unsafe_allow_html=True,
-    )
+    if sidebar_logo_uri:
+        st.markdown(
+            f"""
+            <div class="sidebar-brand">
+                <img src="{sidebar_logo_uri}" alt="Talento CICY">
+                <span>Herramienta climática</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     st.markdown("## Navegación")
     current_view = st.selectbox(
         "Ir a sección",
