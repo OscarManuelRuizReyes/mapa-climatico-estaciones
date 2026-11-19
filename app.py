@@ -1068,12 +1068,6 @@ def load_image_data_uri(image_path: str) -> str:
 
 
 def render_institutional_header(active_section: str) -> None:
-    pattern_uri = load_image_data_uri(str(BRAND_PATTERN_PATH))
-    pattern_html = (
-        f'<img src="{pattern_uri}" alt="" class="institutional-header-pattern" aria-hidden="true">'
-        if pattern_uri
-        else ""
-    )
     st.markdown(
         f"""
         <header class="institutional-header">
@@ -1082,7 +1076,6 @@ def render_institutional_header(active_section: str) -> None:
                 <div class="institutional-title">Mapa interactivo de estaciones climáticas de México</div>
                 <div class="institutional-section">Sección actual: {html.escape(active_section)}</div>
             </div>
-            {pattern_html}
         </header>
         """,
         unsafe_allow_html=True,
@@ -1097,15 +1090,16 @@ def render_institutional_footer() -> None:
         if lockup_uri
         else ""
     )
-    pattern_html = (
-        f'<img src="{pattern_uri}" alt="" class="institutional-footer-pattern" aria-hidden="true">'
+    divider_html = (
+        '<div class="institutional-dot-divider" aria-hidden="true" '
+        f'style="--brand-pattern: url(\'{pattern_uri}\');"></div>'
         if pattern_uri
         else ""
     )
     st.markdown(
         f"""
+        {divider_html}
         <footer class="institutional-footer">
-            {pattern_html}
             <div class="institutional-footer-copy">
                 <strong>Mapa interactivo de estaciones climáticas de México</strong>
                 <span>Proyecto educativo con identidad visual de Talento CICY.</span>
@@ -2534,7 +2528,7 @@ st.markdown(
             flex-direction: column;
             justify-content: center;
             min-height: 126px;
-            padding: 1.2rem 13rem 1.2rem 1.6rem;
+            padding: 1.2rem 1.6rem;
             min-width: 0;
             position: relative;
             z-index: 1;
@@ -2557,14 +2551,18 @@ st.markdown(
             color: var(--cicy-muted);
             font-size: 0.92rem;
         }}
-        .institutional-header-pattern {{
-            position: absolute;
-            right: -2.4rem;
-            bottom: -3rem;
-            width: 15rem;
-            height: auto;
-            opacity: 0.28;
-            pointer-events: none;
+        .institutional-dot-divider {{
+            width: 100%;
+            height: 34px;
+            margin: 2.2rem 0 0;
+            background-image: var(--brand-pattern);
+            background-repeat: repeat-x;
+            background-position: center 46%;
+            background-size: 190px auto;
+            opacity: 0.38;
+            -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+            border-bottom: 2px solid rgba(123, 131, 35, 0.62);
         }}
         .institutional-footer {{
             position: relative;
@@ -2572,7 +2570,7 @@ st.markdown(
             grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
             align-items: center;
             gap: 1.5rem;
-            margin-top: 2.5rem;
+            margin-top: 0;
             padding: 1.35rem 1.2rem 1.1rem;
             overflow: hidden;
             background: var(--cicy-surface);
@@ -2626,14 +2624,6 @@ st.markdown(
             display: block;
             width: 100%;
             height: auto;
-        }}
-        .institutional-footer-pattern {{
-            position: absolute;
-            right: -2rem;
-            top: -2.5rem;
-            width: 230px;
-            opacity: 0.16;
-            pointer-events: none;
         }}
         .map-shell,
         .info-card,
@@ -2773,8 +2763,12 @@ st.markdown(
         @media (max-width: 760px) {{
             .block-container {{ padding: 0.75rem 0.85rem 1.5rem; }}
             .institutional-heading {{ min-height: 0; padding: 1rem 1.1rem 1.15rem; }}
-            .institutional-header-pattern,
-            .institutional-footer-pattern {{ display: none; }}
+            .institutional-dot-divider {{
+                height: 20px;
+                margin-top: 1.5rem;
+                background-size: 135px auto;
+                opacity: 0.26;
+            }}
             .institutional-footer {{
                 grid-template-columns: 1fr;
                 gap: 1rem;
