@@ -5,6 +5,9 @@ __pycache__/
 .DS_Store
 .env
 .streamlit/secrets.toml
+.ipynb_checkpoints/
+*.code-workspace
+*.log
 /.climate_overlay_crop.png
 /image.jpeg
 /Fuentes/dataset_mapa_clima_demo_2015_2024.xlsx

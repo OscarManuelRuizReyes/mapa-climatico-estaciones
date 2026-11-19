@@ -12,6 +12,8 @@ import streamlit as st
 from PIL import Image, ImageOps
 from streamlit_folium import st_folium
 
+from src.theme import CICY_BLUE, CICY_GREEN, FONT_FAMILY, PLOT_FONT_FAMILY, SCIENCE_COLORS, UI_COLORS
+
 
 st.set_page_config(
     page_title="Mapa interactivo de estaciones climáticas de México",
@@ -25,6 +27,7 @@ DATA_DIR = BASE_DIR / "Fuentes"
 QUIZ_DATA_PATH = BASE_DIR / "data" / "preguntas_reto_agua.json"
 CYCLE_WATER_DIR = BASE_DIR / "Fotos" / "ciclo_agua"
 WATER_JOURNEY_RESOURCES_DIR = BASE_DIR / "Fotos" / "ciclo_hidrologico_recursos"
+BRAND_LOGO_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-blanco.png"
 SOURCE_DIRS = [
     DATA_DIR,
     BASE_DIR / "assets",
@@ -45,24 +48,17 @@ MONTH_ORDER = [
     "Diciembre",
 ]
 COLORS = {
-    "paper": "#f4eddc",
-    "card": "#fff9ee",
-    "sand": "#efe3c6",
-    "brown": "#b79247",
-    "ocher": "#c59f4a",
-    "soft_yellow": "#ece94b",
-    "warm_yellow": "#f3c04b",
-    "orange": "#ff8b4b",
-    "green": "#7eb86d",
-    "sky": "#58c5e8",
-    "blue": "#4a89e8",
-    "deep_blue": "#5570a6",
-    "text": "#3a3225",
-    "muted": "#6f6554",
-    "success_bg": "#e8f6ea",
-    "success_text": "#2f7d42",
-    "error_bg": "#fde9e4",
-    "error_text": "#a24c34",
+    "paper": UI_COLORS["background"],
+    "card": UI_COLORS["surface"],
+    "sand": UI_COLORS["surface_muted"],
+    "brown": CICY_GREEN,
+    "text": UI_COLORS["text"],
+    "muted": UI_COLORS["muted"],
+    "success_bg": UI_COLORS["success_bg"],
+    "success_text": UI_COLORS["success_text"],
+    "error_bg": UI_COLORS["error_bg"],
+    "error_text": UI_COLORS["error_text"],
+    **SCIENCE_COLORS,
 }
 STATION_IMAGE_FILES = {
     15062: ["toluca.jpg"],
@@ -678,15 +674,15 @@ def build_annual_summary(station_df: pd.DataFrame) -> pd.DataFrame:
 def style_chart(fig: go.Figure) -> go.Figure:
     fig.update_layout(
         template="plotly_white",
-        paper_bgcolor=COLORS["card"],
-        plot_bgcolor=COLORS["card"],
-        font={"family": "Trebuchet MS, Gill Sans, sans-serif", "color": COLORS["text"]},
+        paper_bgcolor=UI_COLORS["surface"],
+        plot_bgcolor=UI_COLORS["surface"],
+        font={"family": PLOT_FONT_FAMILY, "color": UI_COLORS["text"]},
         margin={"l": 20, "r": 20, "t": 70, "b": 30},
-        hoverlabel={"bgcolor": "#fffdf6", "font_color": COLORS["text"]},
+        hoverlabel={"bgcolor": UI_COLORS["surface"], "font_color": UI_COLORS["text"]},
         legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "left", "x": 0},
     )
-    fig.update_xaxes(showgrid=False, linecolor="#d8cdb9")
-    fig.update_yaxes(gridcolor="#e8deca", zeroline=False, linecolor="#d8cdb9")
+    fig.update_xaxes(showgrid=False, linecolor=UI_COLORS["border"])
+    fig.update_yaxes(gridcolor="#E8EDEF", zeroline=False, linecolor=UI_COLORS["border"])
     return fig
 
 
@@ -906,8 +902,8 @@ def station_card(station_row: pd.Series) -> str:
 
 def popup_html(station_row: pd.Series) -> str:
     return f"""
-    <div style="font-family:Arial,sans-serif; min-width:240px; color:{COLORS['text']};">
-        <div style="font-size:16px; font-weight:700; margin-bottom:8px; color:{COLORS['brown']};">{station_row['station_label']}</div>
+    <div style="font-family:{FONT_FAMILY}; min-width:240px; color:{COLORS['text']}; line-height:1.45;">
+        <div style="font-size:16px; font-weight:700; margin-bottom:8px; color:{CICY_BLUE};">{station_row['station_label']}</div>
         <div style="margin-bottom:4px;"><strong>Estado:</strong> {station_row['state'].title()}</div>
         <div style="margin-bottom:4px;"><strong>Municipio:</strong> {station_row['municipality'].title()}</div>
         <div style="margin-bottom:4px;"><strong>Clave:</strong> {int(station_row['station_id'])}</div>
@@ -931,6 +927,23 @@ def build_station_map(stations: pd.DataFrame, selected_station: str) -> folium.M
 
     mexico_bounds = [[14.0, -118.5], [33.8, -86.0]]
     fmap.fit_bounds(mexico_bounds)
+    fmap.get_root().html.add_child(
+        folium.Element(
+            f"""
+            <style>
+                .leaflet-container,
+                .leaflet-popup-content,
+                .leaflet-tooltip {{ font-family: {FONT_FAMILY}; }}
+                .leaflet-popup-content-wrapper {{ border-radius: 10px; }}
+                .leaflet-tooltip {{
+                    border: 1px solid {UI_COLORS['border']};
+                    border-radius: 6px;
+                    color: {UI_COLORS['text']};
+                }}
+            </style>
+            """
+        )
+    )
 
     for _, row in stations.iterrows():
         is_selected = row["station_label"] == selected_station
@@ -1041,6 +1054,54 @@ VIEW_OPTIONS = {
     "gotita": "Viaje de una gotita",
 }
 VIEW_LABEL_TO_SLUG = {label: slug for slug, label in VIEW_OPTIONS.items()}
+
+
+@st.cache_data(show_spinner=False)
+def load_brand_logo_uri() -> str:
+    if not BRAND_LOGO_PATH.exists():
+        return ""
+    encoded = base64.b64encode(BRAND_LOGO_PATH.read_bytes()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def render_institutional_header(active_section: str) -> None:
+    logo_uri = load_brand_logo_uri()
+    logo_html = (
+        f'<img src="{logo_uri}" alt="Talento CICY" class="institutional-logo">'
+        if logo_uri
+        else '<div class="institutional-logo-fallback">Talento CICY</div>'
+    )
+    st.markdown(
+        f"""
+        <header class="institutional-header">
+            <div class="institutional-brand">{logo_html}</div>
+            <div class="institutional-heading">
+                <div class="institutional-kicker">Herramienta educativa y climática</div>
+                <div class="institutional-title">Mapa interactivo de estaciones climáticas de México</div>
+                <div class="institutional-section">Sección actual: {html.escape(active_section)}</div>
+            </div>
+        </header>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_institutional_footer() -> None:
+    st.markdown(
+        """
+        <footer class="institutional-footer">
+            <div>
+                <strong>Mapa interactivo de estaciones climáticas de México</strong>
+                <span>Proyecto educativo con identidad visual de Talento CICY.</span>
+            </div>
+            <div class="institutional-authors">
+                <span>Yalina Montecelos Zamora</span>
+                <span>Ing. Oscar Manuel Ruiz Reyes</span>
+            </div>
+        </footer>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def set_view_query(slug: str, step_id: Optional[int] = None) -> None:
@@ -2369,6 +2430,259 @@ st.markdown(
                 font-size: 2rem;
             }}
         }}
+
+        /* Institutional presentation layer. Scientific series colors remain unchanged. */
+        :root {{
+            --cicy-blue: {CICY_BLUE};
+            --cicy-green: {CICY_GREEN};
+            --cicy-bg: {UI_COLORS["background"]};
+            --cicy-surface: {UI_COLORS["surface"]};
+            --cicy-muted-surface: {UI_COLORS["surface_muted"]};
+            --cicy-border: {UI_COLORS["border"]};
+            --cicy-text: {UI_COLORS["text"]};
+            --cicy-muted: {UI_COLORS["muted"]};
+        }}
+        html, body, [class*="css"], .stApp {{
+            font-family: {FONT_FAMILY};
+        }}
+        .stApp {{
+            background: var(--cicy-bg);
+            color: var(--cicy-text);
+        }}
+        .block-container {{
+            max-width: 1500px;
+            padding-top: 1rem;
+        }}
+        section[data-testid="stSidebar"] {{
+            background: var(--cicy-muted-surface);
+            border-right: 1px solid var(--cicy-border);
+        }}
+        section[data-testid="stSidebar"] h2 {{
+            color: var(--cicy-blue);
+            font-size: 1.15rem;
+        }}
+        h1, h2, h3 {{
+            font-family: {FONT_FAMILY};
+            color: var(--cicy-blue);
+            letter-spacing: -0.02em;
+        }}
+        h1 {{ font-weight: 750; }}
+        h2, h3 {{ font-weight: 700; }}
+        .institutional-header {{
+            display: grid;
+            grid-template-columns: minmax(190px, 240px) 1fr;
+            align-items: stretch;
+            background: var(--cicy-surface);
+            border: 1px solid var(--cicy-border);
+            border-top: 5px solid var(--cicy-green);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 1.35rem;
+        }}
+        .institutional-brand {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 128px;
+            padding: 1.1rem 1.35rem;
+            background: var(--cicy-blue);
+        }}
+        .institutional-logo {{
+            display: block;
+            width: 100%;
+            max-width: 205px;
+            height: auto;
+        }}
+        .institutional-logo-fallback {{
+            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }}
+        .institutional-heading {{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1.25rem 1.6rem;
+            min-width: 0;
+        }}
+        .institutional-kicker {{
+            color: var(--cicy-green);
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }}
+        .institutional-title {{
+            color: var(--cicy-blue);
+            font-size: clamp(1.45rem, 2.3vw, 2.25rem);
+            font-weight: 760;
+            line-height: 1.17;
+            margin: 0.35rem 0 0.45rem;
+        }}
+        .institutional-section {{
+            color: var(--cicy-muted);
+            font-size: 0.92rem;
+        }}
+        .institutional-footer {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+            padding: 1.2rem 0.25rem 0.35rem;
+            border-top: 3px solid var(--cicy-green);
+            color: var(--cicy-muted);
+            font-size: 0.86rem;
+        }}
+        .institutional-footer strong,
+        .institutional-footer span {{ display: block; }}
+        .institutional-footer strong {{
+            color: var(--cicy-blue);
+            margin-bottom: 0.28rem;
+        }}
+        .institutional-authors {{
+            text-align: right;
+            line-height: 1.65;
+        }}
+        .map-shell,
+        .info-card,
+        .climate-legend,
+        .photo-card,
+        .quiz-hero,
+        .quiz-question-shell,
+        .quiz-question-card,
+        .quiz-finish-card,
+        .journey-hero,
+        .journey-mission-card,
+        .journey-chip-shell,
+        .journey-step-card,
+        .journey-finish-card,
+        .journey-scene-card,
+        .journey-image-card,
+        .journey-status-panel,
+        .journey-svg-placeholder,
+        .journey-svg-frame,
+        div[data-testid="metric-container"] {{
+            background: var(--cicy-surface);
+            border-color: var(--cicy-border);
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0, 54, 74, 0.05);
+        }}
+        .quiz-hero,
+        .quiz-question-card,
+        .journey-hero,
+        .journey-mission-card,
+        .journey-finish-card,
+        .photo-frame {{
+            background: var(--cicy-surface);
+        }}
+        .section-label,
+        .kid-message,
+        .journey-guide-title {{
+            color: var(--cicy-green);
+        }}
+        .climate-metrics div,
+        .quiz-hero-pill,
+        .journey-status-panel,
+        .journey-guide-card {{
+            background: var(--cicy-muted-surface);
+            border-color: var(--cicy-border);
+            box-shadow: none;
+        }}
+        .quiz-hero-note-card {{
+            background: {UI_COLORS["green_soft"]};
+            border-color: rgba(123, 131, 35, 0.24);
+        }}
+        .journey-chip.active,
+        .journey-status-pill.active,
+        .journey-step-badge {{
+            background: {UI_COLORS["blue_soft"]};
+            border-color: rgba(0, 86, 128, 0.25);
+            color: var(--cicy-blue);
+        }}
+        .journey-chip.visited,
+        .journey-status-pill.visited {{
+            background: {UI_COLORS["green_soft"]};
+            border-color: rgba(123, 131, 35, 0.25);
+            color: #535A18;
+        }}
+        .journey-chip.future,
+        .journey-status-pill.future {{
+            background: var(--cicy-muted-surface);
+            border-color: var(--cicy-border);
+        }}
+        .journey-marker.active,
+        .journey-marker.ready {{ background: var(--cicy-blue); }}
+        .journey-marker.visited {{ background: var(--cicy-green); }}
+        .quiz-progress-fill {{
+            background: var(--cicy-blue);
+            box-shadow: none;
+        }}
+        div[data-testid="stRadio"] label,
+        div[data-testid="stCheckbox"] label {{
+            background: {UI_COLORS["blue_soft"]};
+            border-color: #B8D3DE;
+        }}
+        div[data-testid="stRadio"] label:has(input:checked),
+        div[data-testid="stCheckbox"] label:has(input:checked) {{
+            background: {UI_COLORS["green_soft"]};
+            border-color: var(--cicy-green);
+            box-shadow: none;
+        }}
+        div[data-testid="stRadio"] label p,
+        div[data-testid="stCheckbox"] label p {{
+            color: var(--cicy-blue);
+            font-family: {FONT_FAMILY};
+        }}
+        div[data-testid="stButton"] > button,
+        div[data-testid="stDownloadButton"] > button {{
+            border-radius: 8px;
+            border-color: var(--cicy-blue);
+            color: var(--cicy-blue);
+            font-family: {FONT_FAMILY};
+            box-shadow: none;
+        }}
+        div[data-testid="stButton"] > button:hover,
+        div[data-testid="stDownloadButton"] > button:hover {{
+            border-color: var(--cicy-green);
+            color: var(--cicy-green);
+        }}
+        div[data-testid="stButton"] > button[kind="primary"] {{
+            background: var(--cicy-blue);
+            border-color: var(--cicy-blue);
+            color: #ffffff;
+        }}
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="input"] > div {{
+            background: var(--cicy-surface);
+            border-color: var(--cicy-border);
+        }}
+        div[data-testid="stDataFrame"],
+        div[data-testid="stPlotlyChart"],
+        div[data-testid="stIFrame"] {{
+            background: var(--cicy-surface);
+            border: 1px solid var(--cicy-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }}
+        div[data-baseweb="tab-list"] {{
+            gap: 0.35rem;
+            border-bottom: 1px solid var(--cicy-border);
+        }}
+        button[data-baseweb="tab"][aria-selected="true"] {{
+            color: var(--cicy-blue);
+            border-color: var(--cicy-green);
+        }}
+        @media (max-width: 760px) {{
+            .block-container {{ padding: 0.75rem 0.85rem 1.5rem; }}
+            .institutional-header {{ grid-template-columns: 1fr; }}
+            .institutional-brand {{ min-height: 92px; padding: 0.8rem 1rem; }}
+            .institutional-logo {{ max-width: 180px; }}
+            .institutional-heading {{ padding: 1rem 1.1rem 1.15rem; }}
+            .institutional-footer {{ flex-direction: column; }}
+            .institutional-authors {{ text-align: left; }}
+            .photo-frame {{ height: 260px; }}
+        }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -2396,6 +2710,10 @@ elif last_query_view != requested_view and st.session_state.get("current_view") 
 st.session_state["_last_query_view"] = requested_view
 
 with st.sidebar:
+    st.markdown(
+        '<div style="color:#005680;font-weight:800;letter-spacing:0.04em;">Talento CICY</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown("## Navegación")
     current_view = st.selectbox(
         "Ir a sección",
@@ -2417,6 +2735,7 @@ if current_view_slug == "gotita":
 if needs_query_update:
     set_view_query(current_view_slug, expected_step if current_view_slug == "gotita" else None)
 
+render_institutional_header(current_view)
 
 if current_view == "Mapa climático":
     render_map_view(dataset, stations)
@@ -2424,3 +2743,5 @@ elif current_view == "Reto del Agua":
     render_quiz_view()
 else:
     render_water_journey_view()
+
+render_institutional_footer()
