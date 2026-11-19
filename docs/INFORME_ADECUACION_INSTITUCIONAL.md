@@ -6,7 +6,7 @@
 - Se agregó una cabecera institucional, un pie de autoría y estilos consistentes para navegación, tarjetas, formularios, tablas, mapa y gráficas.
 - Se separaron los tokens visuales de los colores científicos para no cambiar la lectura de las variables climáticas.
 - Se organizó la guía de marca en `Fuentes/branding/` y el logotipo de interfaz en `assets/logos/`.
-- Se incorporaron desde la guía original el lockup `Ciencia y Tecnología | CICY` y un patrón halftone para el cierre institucional.
+- Se incorporaron desde la guía original el lockup `Ciencia y Tecnología | CICY` y un patrón halftone, organizado en `assets/branding/`, para detalles discretos del encabezado y cierre institucional.
 - Se amplió la documentación de instalación, estructura, datos e identidad institucional.
 
 ## Integridad funcional

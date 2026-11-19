@@ -31,7 +31,8 @@ Facilitar una lectura clara y accesible del clima de distintas regiones de Méxi
 .
 ├── app.py                         # Aplicación principal
 ├── src/theme.py                   # Paleta y tipografía centralizadas
-├── assets/logos/                  # Recursos institucionales para la interfaz
+├── assets/logos/                  # Logotipos institucionales oficiales
+├── assets/branding/               # Patrones y recursos gráficos derivados
 ├── data/                          # Contenido de actividades educativas
 ├── Fotos/                         # Fotografías y recursos del ciclo del agua
 ├── Fuentes/                       # Datos y documentación fuente

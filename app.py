@@ -29,7 +29,7 @@ CYCLE_WATER_DIR = BASE_DIR / "Fotos" / "ciclo_agua"
 WATER_JOURNEY_RESOURCES_DIR = BASE_DIR / "Fotos" / "ciclo_hidrologico_recursos"
 BRAND_LOGO_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-blanco.png"
 BRAND_LOCKUP_PATH = BASE_DIR / "assets" / "logos" / "ciencia-tecnologia-cicy.png"
-BRAND_PATTERN_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-halftone.png"
+BRAND_PATTERN_PATH = BASE_DIR / "assets" / "branding" / "talento-cicy-halftone-azul.png"
 SOURCE_DIRS = [
     DATA_DIR,
     BASE_DIR / "assets",
@@ -1069,10 +1069,17 @@ def load_image_data_uri(image_path: str) -> str:
 
 def render_institutional_header(active_section: str) -> None:
     logo_uri = load_image_data_uri(str(BRAND_LOGO_PATH))
+    pattern_uri = load_image_data_uri(str(BRAND_PATTERN_PATH))
     logo_html = (
         f'<img src="{logo_uri}" alt="Talento CICY" class="institutional-logo">'
         if logo_uri
         else '<div class="institutional-logo-fallback">Talento CICY</div>'
+    )
+    pattern_html = (
+        '<span class="institutional-header-pattern" aria-hidden="true" '
+        f'style="--brand-pattern: url(\'{pattern_uri}\');"></span>'
+        if pattern_uri
+        else ""
     )
     st.markdown(
         f"""
@@ -1083,6 +1090,7 @@ def render_institutional_header(active_section: str) -> None:
                 <div class="institutional-title">Mapa interactivo de estaciones climáticas de México</div>
                 <div class="institutional-section">Sección actual: {html.escape(active_section)}</div>
             </div>
+            {pattern_html}
         </header>
         """,
         unsafe_allow_html=True,
@@ -1503,7 +1511,12 @@ def render_map_view(dataset: pd.DataFrame, stations: pd.DataFrame) -> None:
 
     st.markdown('<div class="map-shell">', unsafe_allow_html=True)
     st.markdown(
-        '<div class="map-helper">Haz clic en un marcador para ver la información de la estación. La estación seleccionada conserva su color climático y se resalta con un halo.</div>',
+        """
+        <div class="map-helper">
+            <strong>Selecciona una estación en el mapa para consultar su información climática.</strong>
+            <span>La estación seleccionada conserva su color climático y se resalta con un halo.</span>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
     map_result = st_folium(
@@ -1680,6 +1693,16 @@ st.markdown(
             font-size: 0.96rem;
             margin: 0 0 0.8rem 0.1rem;
             overflow-wrap: anywhere;
+        }}
+        .map-helper strong {{
+            display: block;
+            color: {CICY_BLUE};
+            font-weight: 700;
+        }}
+        .map-helper span {{
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.84rem;
         }}
         .info-card,
         .photo-card,
@@ -2495,16 +2518,16 @@ st.markdown(
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 0.3rem;
-            margin: 0.15rem 0 0.7rem;
-            padding: 0.65rem 0.75rem;
+            gap: 0.18rem;
+            margin: 0.1rem 0 0.55rem;
+            padding: 0.42rem 0.65rem 0.48rem;
             background: var(--cicy-blue);
             border-radius: 9px;
         }}
         .sidebar-brand img {{
             display: block;
             width: 100%;
-            max-width: 150px;
+            max-width: 140px;
             height: auto;
         }}
         .sidebar-brand span {{
@@ -2515,8 +2538,9 @@ st.markdown(
             text-transform: uppercase;
         }}
         .institutional-header {{
+            position: relative;
             display: grid;
-            grid-template-columns: minmax(190px, 240px) 1fr;
+            grid-template-columns: minmax(175px, 210px) 1fr;
             align-items: stretch;
             background: var(--cicy-surface);
             border: 1px solid var(--cicy-border);
@@ -2529,8 +2553,8 @@ st.markdown(
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 128px;
-            padding: 1.1rem 1.35rem;
+            min-height: 120px;
+            padding: 0.95rem 1.1rem;
             background: var(--cicy-blue);
         }}
         .institutional-logo {{
@@ -2548,8 +2572,10 @@ st.markdown(
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 1.25rem 1.6rem;
+            padding: 1.15rem 9rem 1.15rem 1.5rem;
             min-width: 0;
+            position: relative;
+            z-index: 1;
         }}
         .institutional-kicker {{
             color: var(--cicy-green);
@@ -2569,12 +2595,28 @@ st.markdown(
             color: var(--cicy-muted);
             font-size: 0.92rem;
         }}
+        .institutional-header-pattern {{
+            position: absolute;
+            right: -1.2rem;
+            bottom: -1.6rem;
+            width: 9rem;
+            height: 7rem;
+            background: var(--cicy-green);
+            -webkit-mask-image: var(--brand-pattern);
+            mask-image: var(--brand-pattern);
+            -webkit-mask-size: cover;
+            mask-size: cover;
+            -webkit-mask-position: center;
+            mask-position: center;
+            opacity: 0.12;
+            pointer-events: none;
+        }}
         .institutional-footer {{
             position: relative;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(280px, 440px);
+            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
             align-items: center;
-            gap: 2rem;
+            gap: 1.5rem;
             margin-top: 2.5rem;
             padding: 1.35rem 1.2rem 1.1rem;
             overflow: hidden;
@@ -2620,7 +2662,7 @@ st.markdown(
         .institutional-lockup {{
             justify-self: end;
             width: 100%;
-            max-width: 430px;
+            max-width: 390px;
             padding: 0.45rem;
             background: #ffffff;
             border-radius: 7px;
@@ -2716,6 +2758,7 @@ st.markdown(
         div[data-testid="stCheckbox"] label {{
             background: {UI_COLORS["blue_soft"]};
             border-color: #B8D3DE;
+            border-width: 2px;
         }}
         div[data-testid="stRadio"] label:has(input:checked),
         div[data-testid="stCheckbox"] label:has(input:checked) {{
@@ -2759,6 +2802,11 @@ st.markdown(
             border-radius: 10px;
             overflow: hidden;
         }}
+        div[data-testid="stDataFrame"] {{
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-gutter: stable;
+        }}
         div[data-baseweb="tab-list"] {{
             gap: 0.35rem;
             border-bottom: 1px solid var(--cicy-border);
@@ -2773,6 +2821,8 @@ st.markdown(
             .institutional-brand {{ min-height: 92px; padding: 0.8rem 1rem; }}
             .institutional-logo {{ max-width: 180px; }}
             .institutional-heading {{ padding: 1rem 1.1rem 1.15rem; }}
+            .institutional-header-pattern,
+            .institutional-footer-pattern {{ display: none; }}
             .institutional-footer {{
                 grid-template-columns: 1fr;
                 gap: 1rem;
