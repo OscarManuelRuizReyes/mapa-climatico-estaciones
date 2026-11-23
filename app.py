@@ -28,7 +28,6 @@ QUIZ_DATA_PATH = BASE_DIR / "data" / "preguntas_reto_agua.json"
 CYCLE_WATER_DIR = BASE_DIR / "Fotos" / "ciclo_agua"
 WATER_JOURNEY_RESOURCES_DIR = BASE_DIR / "Fotos" / "ciclo_hidrologico_recursos"
 BRAND_LOGO_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-blanco.png"
-BRAND_LOCKUP_PATH = BASE_DIR / "assets" / "logos" / "ciencia-tecnologia-cicy.png"
 INSTITUTIONAL_HEADER_PATH = BASE_DIR / "Fotos" / "logo.png"
 SOURCE_DIRS = [
     DATA_DIR,
@@ -1084,12 +1083,6 @@ def render_institutional_header(active_section: str) -> None:
 
 
 def render_institutional_footer() -> None:
-    lockup_uri = load_image_data_uri(str(BRAND_LOCKUP_PATH))
-    lockup_html = (
-        f'<img src="{lockup_uri}" alt="Ciencia y Tecnología y CICY">'
-        if lockup_uri
-        else ""
-    )
     divider_html = '<div class="institutional-dot-divider" aria-hidden="true"></div>'
     st.markdown(
         f"""
@@ -1107,7 +1100,6 @@ def render_institutional_footer() -> None:
                 </div>
                 <span class="institutional-update">Actualización: noviembre de 2026</span>
             </div>
-            <div class="institutional-lockup">{lockup_html}</div>
         </footer>
         """,
         unsafe_allow_html=True,
@@ -2605,10 +2597,7 @@ st.markdown(
         }}
         .institutional-footer {{
             position: relative;
-            display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
-            align-items: center;
-            gap: 1.5rem;
+            display: block;
             margin-top: 0;
             padding: 1.35rem 1.2rem 1.1rem;
             overflow: hidden;
@@ -2618,8 +2607,7 @@ st.markdown(
             color: var(--cicy-muted);
             font-size: 0.86rem;
         }}
-        .institutional-footer-copy,
-        .institutional-lockup {{
+        .institutional-footer-copy {{
             position: relative;
             z-index: 1;
         }}
@@ -2650,19 +2638,6 @@ st.markdown(
             display: block;
             margin-top: 0.35rem;
             font-size: 0.8rem;
-        }}
-        .institutional-lockup {{
-            justify-self: end;
-            width: 100%;
-            max-width: 390px;
-            padding: 0.45rem;
-            background: #ffffff;
-            border-radius: 7px;
-        }}
-        .institutional-lockup img {{
-            display: block;
-            width: 100%;
-            height: auto;
         }}
         .map-shell,
         .info-card,
@@ -2866,8 +2841,6 @@ st.markdown(
                 width: 100%;
             }}
             .institutional-footer {{
-                grid-template-columns: 1fr;
-                gap: 1rem;
                 padding: 1.1rem 0.9rem;
             }}
             .institutional-author-row,
@@ -2877,7 +2850,6 @@ st.markdown(
                 gap: 0.2rem;
             }}
             .institutional-author-separator {{ display: none; }}
-            .institutional-lockup {{ justify-self: start; }}
             .photo-frame {{ height: 260px; }}
         }}
     </style>
