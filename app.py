@@ -16,7 +16,7 @@ from src.theme import CICY_BLUE, CICY_GREEN, FONT_FAMILY, PLOT_FONT_FAMILY, SCIE
 
 
 st.set_page_config(
-    page_title="Mapa interactivo de estaciones climáticas de México",
+    page_title="ClimaExplora | Mapa interactivo",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -29,6 +29,7 @@ CYCLE_WATER_DIR = BASE_DIR / "Fotos" / "ciclo_agua"
 WATER_JOURNEY_RESOURCES_DIR = BASE_DIR / "Fotos" / "ciclo_hidrologico_recursos"
 BRAND_LOGO_PATH = BASE_DIR / "assets" / "logos" / "talento-cicy-blanco.png"
 BRAND_LOCKUP_PATH = BASE_DIR / "assets" / "logos" / "ciencia-tecnologia-cicy.png"
+INSTITUTIONAL_HEADER_PATH = BASE_DIR / "Fotos" / "logo.png"
 SOURCE_DIRS = [
     DATA_DIR,
     BASE_DIR / "assets",
@@ -1072,7 +1073,8 @@ def render_institutional_header(active_section: str) -> None:
         <header class="institutional-header">
             <div class="institutional-heading">
                 <div class="institutional-kicker">Herramienta educativa y climática</div>
-                <div class="institutional-title">Mapa interactivo de estaciones climáticas de México</div>
+                <div class="institutional-title">ClimaExplora</div>
+                <div class="institutional-subtitle">Mapa interactivo de información climática</div>
                 <div class="institutional-section">Sección actual: {html.escape(active_section)}</div>
             </div>
         </header>
@@ -1094,14 +1096,13 @@ def render_institutional_footer() -> None:
         {divider_html}
         <footer class="institutional-footer">
             <div class="institutional-footer-copy">
-                <strong>Mapa interactivo de estaciones climáticas de México</strong>
+                <strong>ClimaExplora</strong>
+                <span>Mapa interactivo de información climática.</span>
                 <span>Proyecto educativo con identidad visual de Talento CICY.</span>
                 <div class="institutional-author-row">
                     <span class="institutional-meta-label">Autores:</span>
                     <div class="institutional-authors">
-                        <span>Dra. Yalina Montecelos Zamora</span>
-                        <span class="institutional-author-separator">·</span>
-                        <span>Ing. Oscar Manuel Ruiz Reyes</span>
+                        <span>Oscar Ruiz, Yalina Montecelos</span>
                     </div>
                 </div>
                 <span class="institutional-update">Actualización: noviembre de 2026</span>
@@ -2496,6 +2497,18 @@ st.markdown(
         h1 {{ font-weight: 750; }}
         h2 {{ color: var(--cicy-green); }}
         h2, h3 {{ font-weight: 700; }}
+        .sidebar-institutional-header {{
+            margin: 0.1rem 0 0.7rem;
+            padding: 0.2rem 0.35rem;
+            overflow: hidden;
+            background: var(--cicy-blue);
+            border-radius: 9px;
+        }}
+        .sidebar-institutional-header img {{
+            display: block;
+            width: 100%;
+            height: auto;
+        }}
         .sidebar-brand {{
             display: block;
             margin: 0.1rem 0 0.55rem;
@@ -2551,7 +2564,14 @@ st.markdown(
             font-size: clamp(1.45rem, 2.3vw, 2.25rem);
             font-weight: 760;
             line-height: 1.17;
-            margin: 0.35rem 0 0.45rem;
+            margin: 0.25rem 0 0.15rem;
+        }}
+        .institutional-subtitle {{
+            color: var(--cicy-text);
+            font-size: clamp(0.98rem, 1.25vw, 1.15rem);
+            font-weight: 650;
+            line-height: 1.35;
+            margin-bottom: 0.45rem;
         }}
         .institutional-section {{
             color: var(--cicy-muted);
@@ -2885,8 +2905,18 @@ elif last_query_view != requested_view and st.session_state.get("current_view") 
     st.session_state["current_view"] = requested_label
 st.session_state["_last_query_view"] = requested_view
 
+institutional_header_uri = load_image_data_uri(str(INSTITUTIONAL_HEADER_PATH))
 sidebar_logo_uri = load_image_data_uri(str(BRAND_LOGO_PATH))
 with st.sidebar:
+    if institutional_header_uri:
+        st.markdown(
+            f"""
+            <div class="sidebar-institutional-header">
+                <img src="{institutional_header_uri}" alt="Ciencia y Tecnología y CICY">
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     if sidebar_logo_uri:
         st.markdown(
             f"""
