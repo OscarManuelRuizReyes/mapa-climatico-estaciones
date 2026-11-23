@@ -2497,30 +2497,31 @@ st.markdown(
         h1 {{ font-weight: 750; }}
         h2 {{ color: var(--cicy-green); }}
         h2, h3 {{ font-weight: 700; }}
-        .sidebar-institutional-header {{
-            margin: 0.1rem 0 0.7rem;
-            padding: 0.2rem 0.35rem;
+        .sidebar-logo-card {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 92px;
+            margin: 0 0 0.55rem;
+            padding: 0 0.45rem;
             overflow: hidden;
-            background: var(--cicy-blue);
+            background: #004d6c;
             border-radius: 9px;
+            box-sizing: border-box;
         }}
         .sidebar-institutional-header img {{
             display: block;
-            width: 100%;
+            width: 102%;
+            max-width: none;
             height: auto;
-        }}
-        .sidebar-brand {{
-            display: block;
-            margin: 0.1rem 0 0.55rem;
-            padding: 0;
-            background: transparent;
+            flex: 0 0 auto;
         }}
         .sidebar-brand img {{
             display: block;
-            width: 100%;
-            max-width: 170px;
+            width: min(78%, 190px);
+            max-width: 190px;
             height: auto;
-            border-radius: 8px;
         }}
         .institutional-header {{
             position: relative;
@@ -2911,7 +2912,7 @@ with st.sidebar:
     if institutional_header_uri:
         st.markdown(
             f"""
-            <div class="sidebar-institutional-header">
+            <div class="sidebar-logo-card sidebar-institutional-header">
                 <img src="{institutional_header_uri}" alt="Ciencia y Tecnología y CICY">
             </div>
             """,
@@ -2920,7 +2921,7 @@ with st.sidebar:
     if sidebar_logo_uri:
         st.markdown(
             f"""
-            <div class="sidebar-brand">
+            <div class="sidebar-logo-card sidebar-brand">
                 <img src="{sidebar_logo_uri}" alt="Talento CICY">
             </div>
             """,
